@@ -19,12 +19,13 @@ class WeiboClass(object):
     输出微博正文内容，微博发布人昵称，发布时间，转评赞数据
     """
 
-    def __init__(self, keyList, timeBegin, timeEnd):
+    def __init__(self, keyList, timeBegin, timeEnd, limit):
         """
         传入参数
         :param keyList: 关键词列表，目前为
         :param timeBegin: 开始时间，格式为 '2022-09-01-0'
         :param timeEnd: 结束时间，格式为 '2022-09-30-0'
+        :param limit: 设置时间跨度更新的，敏感值，一般设置3-5
         """
         self.URL = None
         self.key = None
@@ -37,6 +38,7 @@ class WeiboClass(object):
         self.timeEnd_0 = timeEnd
         self.timeEnd = timeEnd
         self.timeBegin = timeBegin
+        self.limit = limit  # 用于控制更新时间跨度，默认为20
 
     def set_header(self):
         """
@@ -186,6 +188,27 @@ class WeiboClass(object):
         self.timeEnd = to_time_str('2022', timelist)
         print('时间跨度已更新为【{}】-【{}】'.format(self.timeBegin, self.timeEnd))
 
+    def get_data(self):
+        ## 存储该关键词的所有数据
+        out_df = pd.DataFrame()
+        for page in tqdm(range(1, self.total_pages + 1)):
+            # 设置页数
+            self.page = page
+            # time.sleep(random.randint(1, 3))
+            # 获取soup对象
+            self.get_soup()
+            list = self.soup.find_all('div', attrs={'class': 'card-wrap', 'action-type': 'feed_list_item'})
+            for item in list:
+                # 设置item，每个item实际上为一条微博
+                self.item = item
+                # 获取item中的元素
+                self.get_data_df()
+                # 拼接每条数据
+                out_df = pd.concat([out_df, self.data_df])
+
+        print('关键词【{}】数据已写入{}条数据'.format(self.key, len(out_df)))
+        self.save_data(out_df, self.FileFullPath, self.FilePath)
+
     def main_get(self):
         """
         主函数，遍历关键词，每个关键词写入单独的文件
@@ -199,91 +222,36 @@ class WeiboClass(object):
             ## 重置时间跨度
             self.timeEnd = self.timeEnd_0
             ## 设置存储路径
-            FilePath = key + '.csv'
-            FileFullPath = os.path.join(os.getcwd(), FilePath)
+            self.FilePath = key + '.csv'
+            self.FileFullPath = os.path.join(os.getcwd(), self.FilePath)
 
             print('-*' * 18)
             print('开始处理关键词【{}】的数据'.format(key))
             print('时间跨度为【{}】-【{}】'.format(self.timeBegin, self.timeEnd))
-            print('文件将存储在：{}'.format(FileFullPath))
+            print('文件将存储在：{}'.format(self.FileFullPath))
 
             ## 获取总页数
             self.get_total_pages()
             # 处理微博每次只能返回50条数据的问题
-            if self.total_pages < 50:
+            if self.total_pages < self.limit:
                 # 开始遍历每一页
+                self.get_data()
 
-                ## 存储该关键词的所有数据
-                out_df = pd.DataFrame()
-                for page in tqdm(range(1, self.total_pages + 1)):
-                    # 设置页数
-                    self.page = page
-                    time.sleep(random.randint(1, 3))
-                    # 获取soup对象
-                    self.get_soup()
-                    list = self.soup.find_all('div', attrs={'class': 'card-wrap', 'action-type': 'feed_list_item'})
-                    for item in list:
-                        # 设置item，每个item实际上为一条微博
-                        self.item = item
-                        # 获取item中的元素
-                        self.get_data_df()
-                        # 拼接每条数据
-                        out_df = pd.concat([out_df, self.data_df])
-
-                print('关键词【{}】数据已写入{}条数据'.format(self.key, len(out_df)))
-                self.save_data(out_df, FileFullPath, FilePath)
-
-            elif self.total_pages >= 49:
-                while self.total_pages >= 49:
+            elif self.total_pages >= self.limit:
+                while self.total_pages >= self.limit:
                     # 开始遍历每一页
-
-                    ## 存储该关键词的所有数据
-                    out_df = pd.DataFrame()
-                    for page in tqdm(range(1, self.total_pages + 1)):
-                        # 设置页数
-                        self.page = page
-                        time.sleep(random.randint(1, 3))
-                        # 获取soup对象
-                        self.get_soup()
-                        list = self.soup.find_all('div', attrs={'class': 'card-wrap', 'action-type': 'feed_list_item'})
-                        for item in list:
-                            # 设置item，每个item实际上为一条微博
-                            self.item = item
-                            # 获取item中的元素
-                            self.get_data_df()
-                            # 拼接每条数据
-                            out_df = pd.concat([out_df, self.data_df])
-                    print('关键词【{}】数据已写入{}条数据'.format(self.key, len(out_df)))
-                    self.save_data(out_df, FileFullPath, FilePath)
-
+                    self.get_data()
                     # 更新时间跨度参数
-                    time.sleep(random.randint(5, 10))
+                    time.sleep(random.randint(1, 3))
                     self.update_time_span()
+
                     ## 获取总页数
                     self.get_total_pages()
-
-                ## 存储该关键词的所有数据
-                out_df = pd.DataFrame()
-                for page in tqdm(range(1, self.total_pages + 1)):
-                    # 设置页数
-                    self.page = page
-                    time.sleep(random.randint(1, 3))
-                    # 获取soup对象
-                    self.get_soup()
-                    list = self.soup.find_all('div', attrs={'class': 'card-wrap', 'action-type': 'feed_list_item'})
-                    for item in list:
-                        # 设置item，每个item实际上为一条微博
-                        self.item = item
-                        # 获取item中的元素
-                        self.get_data_df()
-                        # 拼接每条数据
-                        out_df = pd.concat([out_df, self.data_df])
-
-                print('关键词【{}】数据已写入{}条数据'.format(self.key, len(out_df)))
-                self.save_data(out_df, FileFullPath, FilePath)
+                # 补充获取最后一个跨度的数据
+                self.get_data()
 
             # 删除重复
-            out_df = pd.read_csv(FilePath)
+            out_df = pd.read_csv(self.FilePath)
             out_df.drop_duplicates(keep='first', inplace=True)
             print('关键词【{}】数据已去重完毕，共写入{}条数据'.format(self.key, len(out_df)))
-            out_df.to_csv(FilePath, header=True, index=False, encoding='utf_8_sig')
+            out_df.to_csv(self.FilePath, header=True, index=False, encoding='utf_8_sig')
