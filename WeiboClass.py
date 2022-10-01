@@ -9,6 +9,7 @@ import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 import re
+
 from tqdm import tqdm
 
 
@@ -17,6 +18,7 @@ class WeiboClass(object):
     用于查找指定时间跨度的，关键词对应的微博内容
     输出微博正文内容，微博发布人昵称，发布时间，转评赞数据
     """
+
     def __init__(self, keyList, timeBegin, timeEnd):
         """
         传入参数
@@ -27,11 +29,12 @@ class WeiboClass(object):
         self.URL = None
         self.key = None
         self.soup = None
-        self.page = 1 # 初始化设定
+        self.page = 1  # 初始化设定
         self.data_df = None
         self.item = None
         self.header = None
         self.keyList = keyList
+        self.timeEnd_0 = timeEnd
         self.timeEnd = timeEnd
         self.timeBegin = timeBegin
 
@@ -42,9 +45,9 @@ class WeiboClass(object):
         """
         self.header = {
             'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
-                          'Chrome/104.0.0.0 Safari/537.36', 
+                          'Chrome/104.0.0.0 Safari/537.36',
             'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,'
-                      '*/*;q=0.8,application/signed-exchange;v=b3;q=0.9', 
+                      '*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
             'accept-encoding': 'gzip, deflate, br',
             'cookie': 'SINAGLOBAL=9170657301486.473.1664549732363; '
                       'SUBP=0033WrSXqPxfM725Ws9jqgMF55529P9D9WW18ADvK4GwUUQp3dLa50Un5JpX5KMhUgL'
@@ -81,6 +84,7 @@ class WeiboClass(object):
         def remove_upprintable_chars(s):
             """移除所有不可见字符"""
             return ''.join(x for x in s if x.isprintable())
+
         ## 处理转评赞数据
         def get_number(act):
             """
@@ -106,9 +110,11 @@ class WeiboClass(object):
         # self.item为list中的一个,list即为当前页面的微博条数列表，一个item为一条微博
         ## 获取对应元素
         mid = self.item.attrs['mid']
-        time = self.item.find('div', 'from').a.text.replace(' ', '').replace('\n', '')
+        # 记录time对象，用于更新时间跨度
+        self.time = self.item.find('div', 'from').a.text.replace(' ', '').replace('\n', '')
         nick_name = self.item.find('p', attrs={'node-type': "feed_list_content"}).attrs['nick-name']
-        content_raw = self.item.find('p', attrs={'node-type': "feed_list_content"}).text.replace(' ', '').replace('\n',                                                                                                          '')
+        content_raw = self.item.find('p', attrs={'node-type': "feed_list_content"}).text.replace(' ', '').replace('\n',
+                                                                                                                  '')
         content = remove_upprintable_chars(content_raw)
         ## 处理转评赞
         act = get_number(self.item.find('div', 'card-act').find_all('li'))
@@ -116,7 +122,7 @@ class WeiboClass(object):
         # 拼接数据
         self.data_df = pd.DataFrame({
             'mid': [mid],
-            'time': [time],
+            'time': [self.time],
             'nick_name': [nick_name],
             'content': [content],
             '转发数': [act[0]],
@@ -131,7 +137,9 @@ class WeiboClass(object):
         """
         self.get_soup()
         try:
-            self.total_pages = len(self.soup.find('ul', attrs={'class': 's-scroll', 'node-type': "feed_list_page_morelist"}).find_all('li'))
+            self.total_pages = len(
+                self.soup.find('ul', attrs={'class': 's-scroll', 'node-type': "feed_list_page_morelist"}).find_all(
+                    'li'))
         except:
             self.total_pages = 1
 
@@ -148,6 +156,36 @@ class WeiboClass(object):
         else:
             data_df.to_csv(FilePath, mode='w', header=True, index=False, encoding='utf_8_sig')
 
+    def update_time_span(self):
+        """
+        用于更新self.timeEnd及self.timeBegin
+        :return:
+        """
+
+        # 轮子函数，用于转换日期
+        def to_time_str(year, timelist):
+            month = timelist[0]
+            if len(month) == 1:
+                month = '0' + month
+            day = timelist[1]
+            if len(day) == 1:
+                day = '0' + day
+            hour = int(timelist[2])
+            if hour != 24:
+                hour += 1
+            else:
+                # TODO 如果是24则要换天
+                pass
+            hour = str(hour)
+            output = year + '-' + month + '-' + day + '-' + hour
+            return output
+
+        mytime = self.time
+        timelist = [mytime.split(':')[0].split('月')[0], mytime.split(':')[0].split('月')[1].split('日')[0],
+                    mytime.split(':')[0].split('月')[1].split('日')[1]]
+        self.timeEnd = to_time_str('2022', timelist)
+        print('时间跨度已更新为【{}】-【{}】'.format(self.timeBegin, self.timeEnd))
+
     def main_get(self):
         """
         主函数，遍历关键词，每个关键词写入单独的文件
@@ -158,29 +196,94 @@ class WeiboClass(object):
             # 参数设置
             ## 设置关键词
             self.key = key
+            ## 重置时间跨度
+            self.timeEnd = self.timeEnd_0
             ## 设置存储路径
             FilePath = key + '.csv'
             FileFullPath = os.path.join(os.getcwd(), FilePath)
+
+            print('-*' * 18)
+            print('开始处理关键词【{}】的数据'.format(key))
+            print('时间跨度为【{}】-【{}】'.format(self.timeBegin, self.timeEnd))
+            print('文件将存储在：{}'.format(FileFullPath))
+
             ## 获取总页数
             self.get_total_pages()
-            ## 存储该关键词的所有数据
-            out_df = pd.DataFrame()
+            # 处理微博每次只能返回50条数据的问题
+            if self.total_pages < 50:
+                # 开始遍历每一页
 
-            # 开始遍历每一页
-            for page in tqdm(range(1, self.total_pages + 1)):
-                # 设置页数
-                self.page = page
-                time.sleep(random.randint(1, 5))
-                # 获取soup对象
-                self.get_soup()
-                list = self.soup.find_all('div', attrs={'class': 'card-wrap', 'action-type': 'feed_list_item'})
-                for item in list:
-                    # 设置item，每个item实际上为一条微博
-                    self.item = item
-                    # 获取item中的元素
-                    self.get_data_df()
-                    # 拼接每条数据
-                    out_df = pd.concat([out_df, self.data_df])
+                ## 存储该关键词的所有数据
+                out_df = pd.DataFrame()
+                for page in tqdm(range(1, self.total_pages + 1)):
+                    # 设置页数
+                    self.page = page
+                    time.sleep(random.randint(1, 3))
+                    # 获取soup对象
+                    self.get_soup()
+                    list = self.soup.find_all('div', attrs={'class': 'card-wrap', 'action-type': 'feed_list_item'})
+                    for item in list:
+                        # 设置item，每个item实际上为一条微博
+                        self.item = item
+                        # 获取item中的元素
+                        self.get_data_df()
+                        # 拼接每条数据
+                        out_df = pd.concat([out_df, self.data_df])
 
-            print('已写入{}条数据'.format(len(out_df)))
-            self.save_data(out_df, FileFullPath, FilePath)
+                print('关键词【{}】数据已写入{}条数据'.format(self.key, len(out_df)))
+                self.save_data(out_df, FileFullPath, FilePath)
+
+            elif self.total_pages >= 49:
+                while self.total_pages >= 49:
+                    # 开始遍历每一页
+
+                    ## 存储该关键词的所有数据
+                    out_df = pd.DataFrame()
+                    for page in tqdm(range(1, self.total_pages + 1)):
+                        # 设置页数
+                        self.page = page
+                        time.sleep(random.randint(1, 3))
+                        # 获取soup对象
+                        self.get_soup()
+                        list = self.soup.find_all('div', attrs={'class': 'card-wrap', 'action-type': 'feed_list_item'})
+                        for item in list:
+                            # 设置item，每个item实际上为一条微博
+                            self.item = item
+                            # 获取item中的元素
+                            self.get_data_df()
+                            # 拼接每条数据
+                            out_df = pd.concat([out_df, self.data_df])
+                    print('关键词【{}】数据已写入{}条数据'.format(self.key, len(out_df)))
+                    self.save_data(out_df, FileFullPath, FilePath)
+
+                    # 更新时间跨度参数
+                    time.sleep(random.randint(5, 10))
+                    self.update_time_span()
+                    ## 获取总页数
+                    self.get_total_pages()
+
+                ## 存储该关键词的所有数据
+                out_df = pd.DataFrame()
+                for page in tqdm(range(1, self.total_pages + 1)):
+                    # 设置页数
+                    self.page = page
+                    time.sleep(random.randint(1, 3))
+                    # 获取soup对象
+                    self.get_soup()
+                    list = self.soup.find_all('div', attrs={'class': 'card-wrap', 'action-type': 'feed_list_item'})
+                    for item in list:
+                        # 设置item，每个item实际上为一条微博
+                        self.item = item
+                        # 获取item中的元素
+                        self.get_data_df()
+                        # 拼接每条数据
+                        out_df = pd.concat([out_df, self.data_df])
+
+                print('关键词【{}】数据已写入{}条数据'.format(self.key, len(out_df)))
+                self.save_data(out_df, FileFullPath, FilePath)
+
+            # 删除重复
+            out_df = pd.read_csv(FilePath)
+            out_df.drop_duplicates(keep='first', inplace=True)
+            print('关键词【{}】数据已去重完毕，共写入{}条数据'.format(self.key, len(out_df)))
+            out_df.to_csv(FilePath, header=True, index=False, encoding='utf_8_sig')
