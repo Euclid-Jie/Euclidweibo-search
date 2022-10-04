@@ -53,12 +53,12 @@ class WeiboClass(object):
             'accept-encoding': 'gzip, deflate, br',
             'cookie': 'SINAGLOBAL=9170657301486.473.1664549732363; '
                       'SUBP=0033WrSXqPxfM725Ws9jqgMF55529P9D9WW18ADvK4GwUUQp3dLa50Un5JpX5KMhUgL'
-                      '.FoME1h24SoMceo52dJLoI7D8UgSjIgxkCJLL; ALF=1696123950; SSOLoginState=1664587954; '
-                      'SCF=AjAZ8VlJRKXsr4vWqu_1y14puHW6Tnn8liIxNVc_7C9Sas5TSljEY5hJV0AV_SXXWr9iUaehlMp90pKYfysRb0w.; '
-                      'SUB=_2A25OM-jiDeRhGeFM41MY9inKyTyIHXVtSV0qrDV8PUNbmtAfLXjkkW9NQLjCKQoLIHRcBsZsa3L4lqneqWOmZCA_'
-                      '; _s_tentry=login.sina.com.cn; UOR=,,login.sina.com.cn; '
-                      'Apache=3576157376630.0825.1664587956644; '
-                      'ULV=1664587956677:7:2:7:3576157376630.0825.1664587956644:1664554051073 '
+                      '.FoME1h24SoMceo52dJLoI7D8UgSjIgxkCJLL; UOR=,,login.sina.com.cn; ALF=1696408635; '
+                      'SSOLoginState=1664872637; '
+                      'SCF=AjAZ8VlJRKXsr4vWqu_1y14puHW6Tnn8liIxNVc_7C9SDrjQScb3L2zZe8f2_VgdOf6jPBMN1V5ibQm-XVEN-xc.; '
+                      'SUB=_2A25OP4DuDeRhGeFM41MY9inKyTyIHXVtTPUmrDV8PUNbmtAKLVfWkW9NQLjCKU9ikWiCFCETrgI8ZW_vKWzumDa_'
+                      '; _s_tentry=login.sina.com.cn; Apache=6018545126818.033.1664872639284; '
+                      'ULV=1664872639363:9:4:1:6018545126818.033.1664872639284:1664610617656 '
         }
 
     def get_soup(self):
