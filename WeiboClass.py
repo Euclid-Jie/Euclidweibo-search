@@ -51,14 +51,7 @@ class WeiboClass(object):
             'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,'
                       '*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
             'accept-encoding': 'gzip, deflate, br',
-            'cookie': 'SINAGLOBAL=9170657301486.473.1664549732363; '
-                      'SUBP=0033WrSXqPxfM725Ws9jqgMF55529P9D9WW18ADvK4GwUUQp3dLa50Un5JpX5KMhUgL'
-                      '.FoME1h24SoMceo52dJLoI7D8UgSjIgxkCJLL; UOR=,,login.sina.com.cn; ALF=1696408635; '
-                      'SSOLoginState=1664872637; '
-                      'SCF=AjAZ8VlJRKXsr4vWqu_1y14puHW6Tnn8liIxNVc_7C9SDrjQScb3L2zZe8f2_VgdOf6jPBMN1V5ibQm-XVEN-xc.; '
-                      'SUB=_2A25OP4DuDeRhGeFM41MY9inKyTyIHXVtTPUmrDV8PUNbmtAKLVfWkW9NQLjCKU9ikWiCFCETrgI8ZW_vKWzumDa_'
-                      '; _s_tentry=login.sina.com.cn; Apache=6018545126818.033.1664872639284; '
-                      'ULV=1664872639363:9:4:1:6018545126818.033.1664872639284:1664610617656 '
+            'cookie': ''
         }
 
     def get_soup(self):
@@ -71,6 +64,7 @@ class WeiboClass(object):
         self.set_header()
         self.URL = 'https://s.weibo.com/weibo?q=' + self.key + '&scope=ori&suball=1&timescope=custom:' + self.timeBegin + ':' + self.timeEnd + '&page=' + str(
             self.page)
+
         response = requests.get(self.URL, headers=self.header)  # 使用request获取网页
         html = response.content.decode('utf-8', 'ignore')  # 将网页源码转换格式为html
         self.soup = BeautifulSoup(html, 'lxml')
