@@ -51,7 +51,14 @@ class WeiboClass(object):
             'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,'
                       '*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
             'accept-encoding': 'gzip, deflate, br',
-            'cookie': ''
+            'cookie': 'PC_TOKEN=877a37c3a4; XSRF-TOKEN=crr811Hbos04nqm-LyYzUA0Z; '
+                      'SUB=_2A25ObOhgDeRhGeFM41MY9inKyTyIHXVtGF6orDV8PUNbmtAKLUPCkW9NQLjCKTVdz1A2sD0sMS_49HppyCBhXcJT'
+                      '; SUBP=0033WrSXqPxfM725Ws9jqgMF55529P9D9WW18ADvK4GwUUQp3dLa50Un5JpX5KzhUgL'
+                      '.FoME1h24SoMceo52dJLoI7D8UgSjIgxkCJLL; ALF=1699335087; SSOLoginState=1667799088; '
+                      'WBPSESS=Dt2hbAUaXfkVprjyrAZT_DHITuLCs2LiuTgIuWUfkUMiRhICFr8GJjBs8c'
+                      '-3OF1tiM8KSi4awaSO3oadgAB3yYv7yILICzDPqSOngby5L'
+                      '-1qUc7m_wqXYPoELVkZUyq1UdhUcC51BzirAvNfMSlhfLbrd56LImDFmmdX_BQ6sr9frn27KSM_OIsymQyr'
+                      '-nbQ_qFvm_0nTPIb9MH974LClA== '
         }
 
     def get_soup(self):
@@ -109,8 +116,12 @@ class WeiboClass(object):
         # 记录time对象，用于更新时间跨度
         self.time = self.item.find('div', 'from').a.text.replace(' ', '').replace('\n', '')
         nick_name = self.item.find('p', attrs={'node-type': "feed_list_content"}).attrs['nick-name']
-        content_raw = self.item.find('p', attrs={'node-type': "feed_list_content"}).text.replace(' ', '').replace('\n',
-                                                                                                                  '')
+        try:  # 部分微博内容需要展开，直接取feed_list_content_full
+            content_raw = self.item.find('p', attrs={'node-type': "feed_list_content_full"}) \
+                .text.replace(' ', '').replace('\n', '')
+        except:
+            content_raw = self.item.find('p', attrs={'node-type': "feed_list_content"}) \
+                .text.replace(' ', '').replace('\n', '')
         content = remove_upprintable_chars(content_raw)
         ## 处理转评赞
         act = get_number(self.item.find('div', 'card-act').find_all('li'))
@@ -244,8 +255,9 @@ class WeiboClass(object):
                 # 补充获取最后一个跨度的数据
                 self.get_data()
 
-            # 删除重复
+            # 删除重复及content中含有单独关键字的情况
             out_df = pd.read_csv(self.FilePath)
             out_df.drop_duplicates(keep='first', inplace=True)
+            out_df = out_df[out_df.content.str.contains(key)]
             print('关键词【{}】数据已去重完毕，共写入{}条数据'.format(self.key, len(out_df)))
             out_df.to_csv(self.FilePath, header=True, index=False, encoding='utf_8_sig')
