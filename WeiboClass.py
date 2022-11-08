@@ -9,7 +9,7 @@ import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 import re
-
+import datetime
 from tqdm import tqdm
 
 
@@ -51,14 +51,15 @@ class WeiboClass(object):
             'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,'
                       '*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
             'accept-encoding': 'gzip, deflate, br',
-            'cookie': 'PC_TOKEN=877a37c3a4; XSRF-TOKEN=crr811Hbos04nqm-LyYzUA0Z; '
-                      'SUB=_2A25ObOhgDeRhGeFM41MY9inKyTyIHXVtGF6orDV8PUNbmtAKLUPCkW9NQLjCKTVdz1A2sD0sMS_49HppyCBhXcJT'
+            'cookie': 'SINAGLOBAL=35519866661.37985.1667799852126; '
+                      'ULV=1667873895285:3:3:3:9242482912171.08.1667873895271:1667825718835; PC_TOKEN=779483dc67; '
+                      'XSRF-TOKEN=awvpFTiovHtK5M5VZ8vSC9ow; '
+                      'SUB=_2A25ObZqzDeRhGeFM41MY9inKyTyIHXVtGot7rDV8PUNbmtANLWnfkW9NQLjCKYMlJ55WufoeMrsSNjmiIMCqJ9mn'
                       '; SUBP=0033WrSXqPxfM725Ws9jqgMF55529P9D9WW18ADvK4GwUUQp3dLa50Un5JpX5KzhUgL'
-                      '.FoME1h24SoMceo52dJLoI7D8UgSjIgxkCJLL; ALF=1699335087; SSOLoginState=1667799088; '
+                      '.FoME1h24SoMceo52dJLoI7D8UgSjIgxkCJLL; ALF=1699421794; SSOLoginState=1667885794; '
                       'WBPSESS=Dt2hbAUaXfkVprjyrAZT_DHITuLCs2LiuTgIuWUfkUMiRhICFr8GJjBs8c'
                       '-3OF1tiM8KSi4awaSO3oadgAB3yYv7yILICzDPqSOngby5L'
-                      '-1qUc7m_wqXYPoELVkZUyq1UdhUcC51BzirAvNfMSlhfLbrd56LImDFmmdX_BQ6sr9frn27KSM_OIsymQyr'
-                      '-nbQ_qFvm_0nTPIb9MH974LClA== '
+                      '-1qUc7m_wqXYPoELVkZUyq1gpx2Ogxp8VQYQ75NXoNVlIK5KMXA7hm2HMtSh5IostSppwtL8qgbo0l9H337xVIzdYgxAK7v4JF9X0yj-pClWQ== '
         }
 
     def get_soup(self):
@@ -168,29 +169,17 @@ class WeiboClass(object):
         用于更新self.timeEnd及self.timeBegin
         :return:
         """
-
-        # 轮子函数，用于转换日期
-        def to_time_str(year, timelist):
-            month = timelist[0]
-            if len(month) == 1:
-                month = '0' + month
-            day = timelist[1]
-            if len(day) == 1:
-                day = '0' + day
-            hour = int(timelist[2])
-            if hour != 24:
-                hour += 1
-            else:
-                # TODO 如果是24则要换天
-                pass
-            hour = str(hour)
-            output = year + '-' + month + '-' + day + '-' + hour
-            return output
-
-        mytime = self.time
-        timelist = [mytime.split(':')[0].split('月')[0], mytime.split(':')[0].split('月')[1].split('日')[0],
-                    mytime.split(':')[0].split('月')[1].split('日')[1]]
-        self.timeEnd = to_time_str('2022', timelist)
+        #  TODO 有可能一个小时内数据量极大，超过50页，时间跨度更新无效，需要考虑
+        mytime = self.time  # 2021年11月09日14:54(非今年)、10月30日19:31(今年）
+        if '年' in mytime:  # 如果非当前年的数据，会额外显示年的信息
+            mytime = pd.to_datetime(mytime.replace('年', '-').replace('月', '-').replace('日', '-'))
+            mytime_lag = (mytime + pd.DateOffset(hours=1)).strftime('%Y-%m-%d-%H')  # '2021-11-09-15'
+            self.timeEnd = mytime_lag
+        else:
+            mytime = pd.to_datetime(
+                str(datetime.date.today().year) + '-' + mytime.replace('月', '-').replace('日', '-'))
+            mytime_lag = (mytime + pd.DateOffset(hours=1)).strftime('%Y-%m-%d-%H')  # '2021-11-09-15'
+            self.timeEnd = mytime_lag
         print('时间跨度已更新为【{}】-【{}】'.format(self.timeBegin, self.timeEnd))
 
     def get_data(self):
@@ -246,10 +235,13 @@ class WeiboClass(object):
                 while self.total_pages >= self.limit:
                     # 开始遍历每一页
                     self.get_data()
-                    # 更新时间跨度参数
                     time.sleep(random.randint(1, 3))
+                    # 更新时间跨度参数
+                    timeEnd = self.timeEnd  # 记录更新前的时间跨度
                     self.update_time_span()
-
+                    if self.timeEnd == timeEnd:  # 时间跨度参数更新无效,强制跳过该小时
+                        print(f'参数更新无效，强制跳过{timeEnd}')
+                        self.timeEnd = (pd.to_datetime(self.timeEnd) - pd.DateOffset(hours=1)).strftime('%Y-%m-%d-%H')
                     ## 获取总页数
                     self.get_total_pages()
                 # 补充获取最后一个跨度的数据
