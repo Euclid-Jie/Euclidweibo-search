@@ -19,13 +19,14 @@ class WeiboClass(object):
     输出微博正文内容，微博发布人昵称，发布时间，转评赞数据
     """
 
-    def __init__(self, keyList, timeBegin, timeEnd, limit):
+    def __init__(self, keyList, timeBegin, timeEnd, limit, contains):
         """
         传入参数
         :param keyList: 关键词列表，目前为
         :param timeBegin: 开始时间，格式为 '2022-09-01-0'
         :param timeEnd: 结束时间，格式为 '2022-09-30-0'
         :param limit: 设置时间跨度更新的，敏感值，一般设置3-5
+        :param contains: 是否必须精确包含关键词
         """
         self.URL = None
         self.key = None
@@ -39,6 +40,7 @@ class WeiboClass(object):
         self.timeEnd = timeEnd
         self.timeBegin = timeBegin
         self.limit = limit  # 用于控制更新时间跨度，默认为20
+        self.contains = contains
 
     def set_header(self):
         """
@@ -51,15 +53,10 @@ class WeiboClass(object):
             'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,'
                       '*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
             'accept-encoding': 'gzip, deflate, br',
-            'cookie': 'SINAGLOBAL=35519866661.37985.1667799852126; '
-                      'ULV=1667873895285:3:3:3:9242482912171.08.1667873895271:1667825718835; PC_TOKEN=779483dc67; '
-                      'XSRF-TOKEN=awvpFTiovHtK5M5VZ8vSC9ow; '
-                      'SUB=_2A25ObZqzDeRhGeFM41MY9inKyTyIHXVtGot7rDV8PUNbmtANLWnfkW9NQLjCKYMlJ55WufoeMrsSNjmiIMCqJ9mn'
-                      '; SUBP=0033WrSXqPxfM725Ws9jqgMF55529P9D9WW18ADvK4GwUUQp3dLa50Un5JpX5KzhUgL'
-                      '.FoME1h24SoMceo52dJLoI7D8UgSjIgxkCJLL; ALF=1699421794; SSOLoginState=1667885794; '
-                      'WBPSESS=Dt2hbAUaXfkVprjyrAZT_DHITuLCs2LiuTgIuWUfkUMiRhICFr8GJjBs8c'
-                      '-3OF1tiM8KSi4awaSO3oadgAB3yYv7yILICzDPqSOngby5L'
-                      '-1qUc7m_wqXYPoELVkZUyq1gpx2Ogxp8VQYQ75NXoNVlIK5KMXA7hm2HMtSh5IostSppwtL8qgbo0l9H337xVIzdYgxAK7v4JF9X0yj-pClWQ== '
+            'cookie': 'SINAGLOBAL=3698396411123.961.1669965180371; PC_TOKEN=04d618771c; '
+                      'SUB=_2A25OtWrFDeRhGeFM41MY9inKyTyIHXVtw9sNrDV8PUNbmtAKLWXxkW9NQLjCKR4BC_0msZb3I2-WleWZD97y8xCw; '
+                      'SUBP=0033WrSXqPxfM725Ws9jqgMF55529P9D9WW18ADvK4GwUUQp3dLa50Un5JpX5KzhUgL.FoME1h24SoMceo52dJLoI7D8UgSjIgxkCJLL; ALF=1704087060; SSOLoginState=1672551061; '
+                      '_s_tentry=weibo.com; Apache=1498645589877.6187.1672551072732; ULV=1672551072736:3:1:1:1498645589877.6187.1672551072732:1671167492084 '
         }
 
     def get_soup(self):
@@ -73,7 +70,7 @@ class WeiboClass(object):
         self.URL = 'https://s.weibo.com/weibo?q=' + self.key + '&scope=ori&suball=1&timescope=custom:' + self.timeBegin + ':' + self.timeEnd + '&page=' + str(
             self.page)
 
-        response = requests.get(self.URL, headers=self.header)  # 使用request获取网页
+        response = requests.get(self.URL, headers=self.header, timeout=60)  # 使用request获取网页
         html = response.content.decode('utf-8', 'ignore')  # 将网页源码转换格式为html
         self.soup = BeautifulSoup(html, 'lxml')
 
@@ -173,12 +170,12 @@ class WeiboClass(object):
         mytime = self.time  # 2021年11月09日14:54(非今年)、10月30日19:31(今年）
         if '年' in mytime:  # 如果非当前年的数据，会额外显示年的信息
             mytime = pd.to_datetime(mytime.replace('年', '-').replace('月', '-').replace('日', '-'))
-            mytime_lag = (mytime + pd.DateOffset(hours=1)).strftime('%Y-%m-%d-%H')  # '2021-11-09-15'
+            mytime_lag = (mytime - pd.DateOffset(hours=1)).strftime('%Y-%m-%d-%H')  # '2021-11-09-15'
             self.timeEnd = mytime_lag
         else:
             mytime = pd.to_datetime(
                 str(datetime.date.today().year) + '-' + mytime.replace('月', '-').replace('日', '-'))
-            mytime_lag = (mytime + pd.DateOffset(hours=1)).strftime('%Y-%m-%d-%H')  # '2021-11-09-15'
+            mytime_lag = (mytime - pd.DateOffset(hours=1)).strftime('%Y-%m-%d-%H')  # '2021-11-09-15'
             self.timeEnd = mytime_lag
         print('时间跨度已更新为【{}】-【{}】'.format(self.timeBegin, self.timeEnd))
 
@@ -239,6 +236,9 @@ class WeiboClass(object):
                     # 更新时间跨度参数
                     timeEnd = self.timeEnd  # 记录更新前的时间跨度
                     self.update_time_span()
+                    if self.timeBegin >= self.timeEnd:
+                        print(f'参数更新超界，已停止{timeEnd}')
+                        break
                     if self.timeEnd == timeEnd:  # 时间跨度参数更新无效,强制跳过该小时
                         print(f'参数更新无效，强制跳过{timeEnd}')
                         self.timeEnd = (pd.to_datetime(self.timeEnd) - pd.DateOffset(hours=1)).strftime('%Y-%m-%d-%H')
@@ -250,6 +250,9 @@ class WeiboClass(object):
             # 删除重复及content中含有单独关键字的情况
             out_df = pd.read_csv(self.FilePath)
             out_df.drop_duplicates(keep='first', inplace=True)
-            out_df = out_df[out_df.content.str.contains(key)]
+            if self.contains:
+                out_df = out_df[out_df.content.str.contains(key)]
+            else:
+                pass
             print('关键词【{}】数据已去重完毕，共写入{}条数据'.format(self.key, len(out_df)))
             out_df.to_csv(self.FilePath, header=True, index=False, encoding='utf_8_sig')
