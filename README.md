@@ -1,14 +1,18 @@
+![Euclidweibo-search](https://socialify.git.ci/Euclid-Jie/Euclidweibo-search/image?language=1&name=1&owner=1&stargazers=1&theme=Light)
 # 微博爬虫-指定关键词
 爬取指定时间区间内，包含指定关键词、话题的原创微博，此代码长期维护，如有疑问欢迎`Issues`
 
 ## 代码结构
 
 ```python
-WeiboClass.py # 主类，需要修改为自己的header
+WeiboClass.py # 主类
+WeiboClassMongo.py # 继承类，写入数据到MongoDB数据库
 WeiboClassRun.py # 调用类，在其中修改参数并运行
 ```
 
 ## 输入参数
+
+- 将Cookie写入Cookie.txt中，详见[注意事项](##注意事项)。
 
 - 关键词列表，元素为`str`格式
 

@@ -47,16 +47,15 @@ class WeiboClass(object):
         设置header内容，可根据自己的更改cookie
         :return:
         """
+        with open('cookie.txt', 'rt', encoding='utf-8') as f:
+            cookie = f.read().strip()
         self.header = {
             'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
                           'Chrome/104.0.0.0 Safari/537.36',
             'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,'
                       '*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
             'accept-encoding': 'gzip, deflate, br',
-            'cookie': 'SINAGLOBAL=3698396411123.961.1669965180371; PC_TOKEN=04d618771c; '
-                      'SUB=_2A25OtWrFDeRhGeFM41MY9inKyTyIHXVtw9sNrDV8PUNbmtAKLWXxkW9NQLjCKR4BC_0msZb3I2-WleWZD97y8xCw; '
-                      'SUBP=0033WrSXqPxfM725Ws9jqgMF55529P9D9WW18ADvK4GwUUQp3dLa50Un5JpX5KzhUgL.FoME1h24SoMceo52dJLoI7D8UgSjIgxkCJLL; ALF=1704087060; SSOLoginState=1672551061; '
-                      '_s_tentry=weibo.com; Apache=1498645589877.6187.1672551072732; ULV=1672551072736:3:1:1:1498645589877.6187.1672551072732:1671167492084 '
+            'Cookie': cookie
         }
 
     def get_soup(self):
@@ -125,15 +124,15 @@ class WeiboClass(object):
         act = get_number(self.item.find('div', 'card-act').find_all('li'))
 
         # 拼接数据
-        self.data_df = pd.DataFrame({
-            'mid': [mid],
-            'time': [self.time],
-            'nick_name': [nick_name],
-            'content': [content],
-            '转发数': [act[0]],
-            '评价数': [act[1]],
-            '点赞数': [act[2]]
-        })
+        self.data_json = {
+            'mid': mid,
+            'time': self.time,
+            'nick_name': nick_name,
+            'content': content,
+            '转发数': act[0],
+            '评价数': act[1],
+            '点赞数': act[2]
+        }
 
     def get_total_pages(self):
         """
@@ -195,7 +194,7 @@ class WeiboClass(object):
                 # 获取item中的元素
                 self.get_data_df()
                 # 拼接每条数据
-                out_df = pd.concat([out_df, self.data_df])
+                out_df = pd.concat([out_df, pd.DataFrame(self.data_json, index=[0])])
 
         print('关键词【{}】数据已写入{}条数据'.format(self.key, len(out_df)))
         self.save_data(out_df, self.FileFullPath, self.FilePath)
