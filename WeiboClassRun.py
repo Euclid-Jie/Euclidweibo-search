@@ -13,8 +13,8 @@ timeBegin = '2020-01-01-0'
 timeEnd = '2020-02-01-0'
 # 运行函数[两种写入方法二选一]
 
-# 1、使用数据库写入
-# WeiboClass(keyList, timeBegin, timeEnd, limit=3, contains=True).main_get()
+# 1、使用csv写入
+WeiboClass(keyList, timeBegin, timeEnd, limit=3, contains=True).main_get()
 
-# 2、使用csv写入
-WeiboClassMongo(keyList, timeBegin, timeEnd, limit=3, contains=True).main_get()
+# 2、使用MongoDB数据库
+# WeiboClassMongo(keyList, timeBegin, timeEnd, limit=3, contains=True).main_get()
