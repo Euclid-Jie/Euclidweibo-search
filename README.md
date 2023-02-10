@@ -15,6 +15,23 @@ WeiboClassMongo.py # 继承类，写入数据到MongoDB数据库
 WeiboClassRun.py # 调用类，在其中修改参数并运行
 ```
 
+## 测试功能--Euclidweibo package
+
+🛎️暂未开发完成，部分可使用功能见`Euclid_weibo_Test.py`
+
+```markdown
+Euclidweibo
+    - __init--.py  # init
+    - Get_item_url_list.py  # 获取指定关键词下的微博列表[未完成]
+    - Get_longTextContent.py  # 轮子函数，获取完整微博内容
+    - Get_single_weibo_data.py  # 获取单个微博内容信息
+    - Get_single_weibo_details.py  # 获取单个微博的评论、转发、点赞信息[未完成]
+    - Get_user_info.py  # 获取微博用户账号信息
+    - MongoClient.py  # 连接MogoDB
+    - Set_header.py  # 设置header，主要为cookie
+Euclid_weibo_Test.py  # 功能展示
+```
+
 ## 输入参数
 
 - 将Cookie写入Cookie.txt中，详见[注意事项](##注意事项)。
