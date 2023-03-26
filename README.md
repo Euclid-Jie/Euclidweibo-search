@@ -26,10 +26,11 @@ Euclidweibo
     - Get_longTextContent.py  # 轮子函数，获取完整微博内容
     - Get_single_weibo_data.py  # 获取单个微博内容信息
     - Get_single_weibo_details.py  # 获取单个微博的评论、转发、点赞信息[未完成]
+    - Get_user_all_weibo.py  # 获取某个用户的所有微博信息，或部分(可指定筛选条件)
     - Get_user_info.py  # 获取微博用户账号信息
     - MongoClient.py  # 连接MogoDB
     - Set_header.py  # 设置header，主要为cookie
-Euclid_weibo_Test.py  # 功能展示
+Euclid_weibo_Test.py  # 功能展示, 所展示的均为可用
 ```
 
 ## 输入参数

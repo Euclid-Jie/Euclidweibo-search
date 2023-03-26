@@ -69,6 +69,9 @@ class WeiboClass(object):
         self.URL = 'https://s.weibo.com/weibo?q=' + self.key + '&scope=ori&suball=1&timescope=custom:' + self.timeBegin + ':' + self.timeEnd + '&page=' + str(
             self.page)
 
+        # self.URL = 'https://s.weibo.com/weibo?q=' + self.key + '&typeall=1&suball=1&timescope=custom:' + self.timeBegin + ':' + self.timeEnd + '&Refer=g&page=' + str(
+        #     self.page)
+
         response = requests.get(self.URL, headers=self.header, timeout=60)  # 使用request获取网页
         html = response.content.decode('utf-8', 'ignore')  # 将网页源码转换格式为html
         self.soup = BeautifulSoup(html, 'lxml')
@@ -111,7 +114,10 @@ class WeiboClass(object):
         ## 获取对应元素
         mid = self.item.attrs['mid']
         # 记录time对象，用于更新时间跨度
-        self.time = self.item.find('div', 'from').a.text.replace(' ', '').replace('\n', '')
+        time = self.item.find('div', 'from').a.text.replace(' ', '').replace('\n', '')
+        if '今天' not in time:
+            self.time = time
+
         nick_name = self.item.find('p', attrs={'node-type': "feed_list_content"}).attrs['nick-name']
         try:  # 部分微博内容需要展开，直接取feed_list_content_full
             content_raw = self.item.find('p', attrs={'node-type': "feed_list_content_full"}) \
@@ -123,10 +129,12 @@ class WeiboClass(object):
         ## 处理转评赞
         act = get_number(self.item.find('div', 'card-act').find_all('li'))
 
+        # 其他数据
+
         # 拼接数据
         self.data_json = {
             'mid': mid,
-            'time': self.time,
+            'time': time,
             'nick_name': nick_name,
             'content': content,
             '转发数': act[0],
@@ -171,11 +179,17 @@ class WeiboClass(object):
             mytime = pd.to_datetime(mytime.replace('年', '-').replace('月', '-').replace('日', '-'))
             mytime_lag = (mytime - pd.DateOffset(hours=1)).strftime('%Y-%m-%d-%H')  # '2021-11-09-15'
             self.timeEnd = mytime_lag
+        # TODO 如果是今天
+        elif '今天' in mytime:
+            mytime
+
+
         else:
             mytime = pd.to_datetime(
                 str(datetime.date.today().year) + '-' + mytime.replace('月', '-').replace('日', '-'))
             mytime_lag = (mytime - pd.DateOffset(hours=1)).strftime('%Y-%m-%d-%H')  # '2021-11-09-15'
             self.timeEnd = mytime_lag
+
         print('时间跨度已更新为【{}】-【{}】'.format(self.timeBegin, self.timeEnd))
 
     def get_data(self):

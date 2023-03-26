@@ -26,7 +26,7 @@ def Get_user_info(uid, header):
 
 
 if __name__ == '__main__':
-    data = Get_user_info('1202150843', Set_header('../cookie.txt'))
+    data = Get_user_info('7416119836', Set_header('../cookie.txt'))
     # followers_count
     print(data['user']['followers_count'])
     # gender

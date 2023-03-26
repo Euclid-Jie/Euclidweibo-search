@@ -42,9 +42,10 @@ class Get_single_weibo_details:
         self.mblogid = mblogid
         self.method = method
         self.header = header
-        self.singe_weibo_data = Euclidweibo.Get_single_weibo_data(self.mblogid, self.header)
-        self.Get_single_weibo_infos()
+        # self.singe_weibo_data = Euclidweibo.Get_single_weibo_data(self.mblogid, self.header)
+        # self.Get_single_weibo_infos()
         self.col = Euclidweibo.MongoClient('Weibo', mblogid + '_' + method)
+        self.col = Euclidweibo.MongoClient('Weibo', '央视视频-主播说联播-media')
 
     def Get_single_weibo_infos(self):
         self.total_pages = {
@@ -73,19 +74,24 @@ class Get_single_weibo_details:
             'reposts_count': self.item['reposts_count'],
             'text': self.item['text'],
             'text_raw': self.item['text_raw'],
-            'content': self.item
+            'mp4_720p_mp4': self.item['page_info']['media_info']['mp4_720p_mp4'],
+            'mp4_hd_url': self.item['page_info']['media_info']['mp4_hd_url'],
+            'mp4_sd_url': self.item['page_info']['media_info']['mp4_sd_url'],
+            'media_info': self.item['page_info']['media_info']
         }
         self.data_json = Euclidweibo.Get_longTextContent(data_json)
 
     def Get_reposts_info(self):
-        total_pages = int(self.total_pages['comments_count'] / 15)
-        with tqdm(range(1, total_pages + 1)) as t:
+        # total_pages = int(self.total_pages['comments_count'] / 15)
+        total_pages = 100
+        with tqdm(range(18, total_pages + 1)) as t:
             for self.page in t:
                 t.set_description("pages:{}".format(self.page))  # bar's left info
-                URL = 'https://weibo.com/ajax/statuses/repostTimeline?id={}&page={}&moduleID=feed&count=10'. \
-                    format(self.mid, self.pages)
+                # URL = 'https://weibo.com/ajax/statuses/repostTimeline?id={}&page={}&moduleID=feed&count=10'. \
+                #     format(self.mid, self.pages)
+                URL = 'https://weibo.com/ajax/profile/searchblog?uid=2656274875&page={}&feature=0&q=主播说联播'.format(self.page)
                 data_json = self.Get_json_data(URL)
-                reposts_list = data_json['data']
+                reposts_list = data_json['data']['list']
                 for item in reposts_list:
                     self.item = item
                     self.get_data_json()
