@@ -2,13 +2,12 @@
 # @Time    : 2023/2/9 21:36
 # @Author  : Euclid-Jie
 # @File    : Get_single_weibo_data.py
-import json
 
-import requests
+
 from Euclidweibo import *
 
 
-def Get_single_weibo_data(mblogid, header):
+def Get_single_weibo_data(mblogid):
     """
     get single weibo's data by weibo_url, just like https://weibo.com/1310272120/MrOtA75Fd
     which can get by using Get_item_url_list.py
@@ -34,9 +33,12 @@ def Get_single_weibo_data(mblogid, header):
         ......
     """
     URL = 'https://weibo.com/ajax/statuses/show?id={}'.format(mblogid)
+    current_dir = os.path.abspath(os.path.dirname(__file__))
+    parent_dir = os.path.abspath(os.path.join(current_dir, os.pardir))
+    header = Set_header(os.path.join(parent_dir, 'cookie.txt'))
     response = requests.get(URL, headers=header, timeout=60)  # 使用request获取网页
     html = response.content.decode('utf-8', 'ignore')  # 将网页源码转换格式为html
-    data_json = json.loads(html)
+    data_json = json.loads(html, strict=False)
     if '展开' in data_json['text']:
         URL = 'https://weibo.com/ajax/statuses/longtext?id={}'.format(mblogid)
         response = requests.get(URL, headers=header, timeout=60)  # 使用request获取网页
@@ -49,7 +51,7 @@ def Get_single_weibo_data(mblogid, header):
 
 
 if __name__ == '__main__':
-    data = Get_single_weibo_data(mblogid='MrOtA75Fd', header=Set_header('../cookie.txt'))
+    data = Get_single_weibo_data(mblogid='MrOtA75Fd')
     part_data = {
         'time': data['created_at'],
         'mid': data['mid'],

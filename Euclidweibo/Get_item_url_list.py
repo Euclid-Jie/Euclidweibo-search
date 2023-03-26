@@ -7,7 +7,7 @@ import requests_html
 from Euclidweibo import *
 
 
-def Get_item_url_list(URL, header):
+def Get_item_url_list(URL):
     """
     get all single weibo item 's url, just like https://weibo.com/1310272120/MrOtA75Fd
     1310272120 is uid
@@ -16,6 +16,9 @@ def Get_item_url_list(URL, header):
     con get all info about the single weibo
     """
     session = requests_html.HTMLSession()
+    current_dir = os.path.abspath(os.path.dirname(__file__))
+    parent_dir = os.path.abspath(os.path.join(current_dir, os.pardir))
+    header = Set_header(os.path.join(parent_dir, 'cookie.txt'))
     response = session.get(URL, headers=header)
     response.encoding = 'utf-8'
     all_url_list = list(response.html.links)
@@ -24,11 +27,11 @@ def Get_item_url_list(URL, header):
     for url in all_url_list:
         tag = pat.findall(url)
         if tag:
-            url_list.append(tag)
+            url_list.append(tag[0])
 
     return url_list
 
 
 if __name__ == '__main__':
-    url_list = Get_item_url_list('https://s.weibo.com/weibo?q=杭州公园', Set_header('../cookie.txt'))
+    url_list = Get_item_url_list('https://s.weibo.com/weibo?q=杭州公园')
     print(url_list)
