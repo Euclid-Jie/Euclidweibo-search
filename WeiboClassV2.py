@@ -8,7 +8,7 @@ from Euclidweibo import *
 
 class WeiboClassV2:
     def __init__(self, keyWord=None, method=None, baseUrl=None, Mongo=True):
-        self.keyWord = None
+        self.keyWord = keyWord
         self.UrlList = None
         self.baseUrl = 'https://s.weibo.com/weibo?'
         self.method = method
@@ -93,4 +93,4 @@ class WeiboClassV2:
 
 if __name__ == '__main__':
     self = WeiboClassV2('复试', Mongo=False)
-    self.main('2023-03-10-00', '2023-03-11-00', 'Test')
+    self.main('2023-03-10-00', '2023-03-11-00', '复试')
