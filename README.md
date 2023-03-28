@@ -2,7 +2,7 @@
 # 微博爬虫-指定关键词
 爬取指定时间区间内，包含指定关键词、话题的原创微博，此代码长期维护，如有疑问欢迎`Issues`
 
-老版本~~`WeiboClassRun.py`~~先已废弃，正式更新`WeiboClassV2.py`
+老版本`WeiboClassRun.py`已废弃，正式更新`WeiboClassV2.py`
 
 🛎️ **Attention!!** 目前有两种数据写入方式，请结合自身情选择选择，具体选择方式为修改`WeiboClassV2.py`中的`Mongo`参数，默认为`True`
 
