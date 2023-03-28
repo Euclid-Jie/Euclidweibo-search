@@ -2,22 +2,23 @@
 # 微博爬虫-指定关键词
 爬取指定时间区间内，包含指定关键词、话题的原创微博，此代码长期维护，如有疑问欢迎`Issues`
 
-🛎️ **Attention!!** 目前有两种数据写入方式，请结合自身情选择选择，具体选择方式为修改`WeiboClassRun.py`
+老版本~~`WeiboClassRun.py`~~先已废弃，正式更新`WeiboClassV2.py`
 
-- csv文件
-- MongoDB数据库
+🛎️ **Attention!!** 目前有两种数据写入方式，请结合自身情选择选择，具体选择方式为修改`WeiboClassV2.py`中的`Mongo`参数，默认为`True`
+
+- `Mongo=False`：将输出写为csv文件
+- `Mongo=True`：MongoDB数据库
 
 ## 代码结构
 
 ```python
-WeiboClass.py # 主类
-WeiboClassMongo.py # 继承类，写入数据到MongoDB数据库
-WeiboClassRun.py # 调用类，在其中修改参数并运行
+EuclidWeibo # 工具包
+WeiboClassV2.py # 主函数，在此更改参数
 ```
 
-## 测试功能--Euclidweibo package
+## Euclidweibo package
 
-🛎️暂未开发完成，部分可使用功能见`Euclid_weibo_Test.py`
+🛎️开发已完成，可直接使用`pip`安装，具体见可[EuclidSearchPackage](https://github.com/Euclid-Jie/EuclidSearchPackage)
 
 ```markdown
 Euclidweibo
@@ -28,53 +29,58 @@ Euclidweibo
     - Get_single_weibo_details.py  # 获取单个微博的评论、转发、点赞信息[未完成]
     - Get_user_all_weibo.py  # 获取某个用户的所有微博信息，或部分(可指定筛选条件)
     - Get_user_info.py  # 获取微博用户账号信息
-    - MongoClient.py  # 连接MogoDB
-    - Set_header.py  # 设置header，主要为cookie
 Euclid_weibo_Test.py  # 功能展示, 所展示的均为可用
 ```
 
-## 输入参数
+## 运行方式
 
-- 将Cookie写入Cookie.txt中，详见[注意事项](##注意事项)。
+### 1、设置Cookie
 
-- 关键词列表，元素为`str`格式
+将Cookie写入Cookie.txt中，详见[注意事项](##注意事项)。
+
+### 2、修改参数并运行
+
+```python
+WeiboClassV2('量化实习', Mongo=False).main('2023-03-11-00', '2023-03-27-21')
+```
+
+### 3、参数说明
+
+- 关键词，`str`格式
 
   ```python
-  keyList = ['北京师范大学','120周年校庆']
-  keyList = ['%23北京师范大学120周年校庆%23'] # %23转义后即为#，表示爬取包含话题的微博
+  keyWord = '北京师范大学'
+  keyList = '%23北京师范大学120周年校庆%23' # %23转义后即为#，表示爬取包含话题的微博
   ```
 
 - 时间区间，各位为`YY-mm-dd-hh`
 
   ```python
-  timeBegin = '2022-09-01-0' # 开始时间
+  timeBegin = '2022-09-01-00' # 开始时间
   timeEnd = '2022-09-08-10' # 结束时间
   ```
 
 - 其他参数
 
   ```python
-  limit # 设置时间跨度更新的，敏感值，一般设置3-5
-  contains # 所获取的微博内容是否严格包含关键词，若为True则要求严格包含
+  Mongo=False  # 设置为写入csv 或 MongoDB
+  ColName=None  # 存储的文件名
   ```
 
-  严格包含的意思举例说明，若关键词为“西南财大”时，可检索包含“西南”+“财大”，即两词分开，若设置为True则仅返回两次连续的内容，即“西南财大”
-
-## 调用方式
-
-设置`header`及参数后，直接运行`WeiboClassRun.py`，即可开始爬取工作
 
 ## 输出内容
 
-| 名称      | 含义                   |
-| --------- | ---------------------- |
-| mid       | 微博标识ID，为一串数字 |
-| time      | 微博发布时间           |
-| nick_name | 微博发布者昵称         |
-| content   | 微博内容               |
-| 转发数    | 微博转发数             |
-| 评价数    | 微博评价数             |
-| 点赞数    | 微博点赞数             |
+| 名称              | 含义                   |
+| ----------------- | ---------------------- |
+| mid               | 微博标识ID，为一串数字 |
+| time              | 微博发布时间           |
+| nick_name         | 微博发布者昵称         |
+| Text              | 微博内容               |
+| Text_raw          | 原始内容               |
+| LongText_content  | 长内容格式             |
+| 转发数(reposts)   | 微博转发数             |
+| 评价数(comments)  | 微博评价数             |
+| 点赞数(attitudes) | 微博点赞数             |
 
 ## 注意事项
 
