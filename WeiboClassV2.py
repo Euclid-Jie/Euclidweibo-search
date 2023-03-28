@@ -65,13 +65,15 @@ class WeiboClassV2:
         }
         return selectedData
 
-    def main(self, beginTime, endTime, ColName):
+    def main(self, beginTime, endTime, ColName=None):
+        if ColName is None:
+            ColName = self.keyWord
         if self.Mongo:
             _COL = MongoClient('Weibo', ColName)
         else:
             _COL = CsvClient('Weibo', ColName)
 
-        print(">>> get blog info begin ...")
+        print("\n>>> get blog info begin ...")
         NewEndTime = endTime
         while NewEndTime > beginTime:
             print('\t time span: {} - {}'.format(beginTime, NewEndTime), end='')
@@ -79,18 +81,27 @@ class WeiboClassV2:
             if len(self.UrlList) <= 5:
                 break
             print("\t >>> write blog url begin ...")
+            BreakOrNot = True
             for mblogid in tqdm(self.UrlList):
-                data_json = Get_single_weibo_data(mblogid.split("/")[-1])
-                selectedData = self.select_field(data_json)
-                _COL.insert_one(selectedData)
+                try:
+                    data_json = Get_single_weibo_data(mblogid.split("/")[-1])
+                    selectedData = self.select_field(data_json)
+                    _COL.insert_one(selectedData)
+                except json.decoder.JSONDecodeError:
+                    pass
+                except KeyError:
+                    pass
                 # upDate date
                 tmpTime = pd.to_datetime(selectedData['time']).strftime("%Y-%m-%d-%H")
                 if NewEndTime >= tmpTime:
                     NewEndTime = tmpTime
+                    BreakOrNot = False
+            if BreakOrNot:
+                break
             print("\t >>> write blog url done")
         print(">>> get blog info done")
 
 
 if __name__ == '__main__':
-    self = WeiboClassV2('复试', Mongo=False)
-    self.main('2023-03-10-00', '2023-03-11-00', '复试')
+    self = WeiboClassV2('量化实习', Mongo=False)
+    self.main('2023-03-11-00', '2023-03-27-21')

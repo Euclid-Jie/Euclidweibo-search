@@ -16,8 +16,8 @@ url_list = Get_item_url_list('https://s.weibo.com/weibo?q=杭州公园')
 print(url_list)
 
 # # 4、get user's info
-# data_json = Get_user_info('1202150843', Set_header('cookie.txt'))
-# print(data_json)
+data_json = Get_user_info('1202150843', Set_header('cookie.txt'))
+print(data_json)
 
 # 5、get user's all blog
 # Get_user_all_weibo(7416119836, 100, begin=50)
