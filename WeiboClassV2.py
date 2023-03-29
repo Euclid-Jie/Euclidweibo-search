@@ -2,6 +2,7 @@
 # @Time    : 2023/3/26 19:42
 # @Author  : Euclid-Jie
 # @File    : WeiboClassV2.py
+import time
 from urllib.parse import urlencode
 from Euclidweibo import *
 
@@ -37,7 +38,7 @@ class WeiboClassV2:
         page = 0
         NetPage = True
         self.UrlList = []
-        print("\n\t >>> get blog url begin ...")
+        print("\t >>> get blog url begin ...")
         while NetPage:
             page += 1
             targetUrl = self.UrlFormat(self.keyWord, beginTime, endTime, page)
@@ -48,7 +49,6 @@ class WeiboClassV2:
             if len(self.UrlList) == tmpLen:
                 NetPage = False
             print('\r\t\t page: {}, len: {}'.format(page, len(self.UrlList)), end='')
-        print("\n\t >>> get blog url done")
 
     @staticmethod
     def select_field(data):
@@ -73,7 +73,7 @@ class WeiboClassV2:
         else:
             _COL = CsvClient('Weibo', ColName)
 
-        print("\n>>> get blog info begin ...")
+        print(">> get blog info begin ...")
         NewEndTime = endTime
         while NewEndTime > beginTime:
             print('\t time span: {} - {}'.format(beginTime, NewEndTime), end='')
@@ -103,5 +103,6 @@ class WeiboClassV2:
 
 
 if __name__ == '__main__':
-    self = WeiboClassV2('量化实习', Mongo=False)
-    self.main('2023-03-11-00', '2023-03-27-21')
+    a = time.time()
+    WeiboClassV2('量化实习', Mongo=False).main('2023-03-11-00', '2023-03-27-21')
+    print(time.time() - a)

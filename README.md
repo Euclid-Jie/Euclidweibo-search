@@ -2,7 +2,7 @@
 # 微博爬虫-指定关键词
 爬取指定时间区间内，包含指定关键词、话题的原创微博，此代码长期维护，如有疑问欢迎`Issues`
 
-老版本`WeiboClassRun.py`已废弃，正式更新`WeiboClassV2.py`
+老版本`WeiboClassRun.py`已废弃，正式更新`WeiboClassV2.py`，另有多线程版本`WeiboClassV3.py`可供选择
 
 🛎️ **Attention!!** 目前有两种数据写入方式，请结合自身情选择选择，具体选择方式为修改`WeiboClassV2.py`中的`Mongo`参数，默认为`True`
 
@@ -14,6 +14,7 @@
 ```python
 EuclidWeibo # 工具包
 WeiboClassV2.py # 主函数，在此更改参数
+WeiboClassV3.py # 主函数，多线程版本，在此更改参数
 ```
 
 ## Euclidweibo package
@@ -65,6 +66,8 @@ WeiboClassV2('量化实习', Mongo=False).main('2023-03-11-00', '2023-03-27-21')
   ```python
   Mongo=False  # 设置为写入csv 或 MongoDB
   ColName=None  # 存储的文件名
+  max_work_count=20  # 线程池个数
+  LongText=False  # 是否需要长文本, 开启将降速
   ```
 
 
