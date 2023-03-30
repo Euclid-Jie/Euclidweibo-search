@@ -41,7 +41,7 @@ class WeiboClassV3(WeiboClassV2):
             print("\n\t >>> get blog data begin ...")
             # multitask get data
             allData = []
-            results = self.run_thread_pool_sub(Get_single_weibo_data_async,
+            results = self.run_thread_pool_sub(Get_single_weibo_data,
                                                [mblogid.split("/")[-1] for mblogid in self.UrlList],
                                                max_work_count=self.max_work_count)
             for future in as_completed(results):
@@ -91,4 +91,4 @@ class WeiboClassV3(WeiboClassV2):
 
 
 if __name__ == '__main__':
-    WeiboClassV3('量化实习', Mongo=False).main('2023-02-11-00', '2023-03-27-21')
+    WeiboClassV3('央视频', Mongo=False).main('2023-02-11-00', '2023-03-27-21')

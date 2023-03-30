@@ -38,7 +38,7 @@ class WeiboClassV2:
         page = 0
         NetPage = True
         self.UrlList = []
-        print("\t >>> get blog url begin ...")
+        print("\n\t >>> get blog url begin ...")
         while NetPage:
             page += 1
             targetUrl = self.UrlFormat(self.keyWord, beginTime, endTime, page)
@@ -52,16 +52,26 @@ class WeiboClassV2:
 
     @staticmethod
     def select_field(data):
+        if 'page_info' in data.keys():
+            video_url = data['page_info']['media_info']['mp4_720p_mp4']
+        else:
+            video_url = ''
+
         selectedData = {
+            # base filed
             'time': data['created_at'],
             'mid': data['mid'],
             'nick_name': data['user']['screen_name'],
+            'useId': data['user']['id'],
+            'mblogUrl': "https://weibo.com/{}/{}".format(data['user']['id'], data['mid']),
+            # addition field
             'attitudes_count': data['attitudes_count'],
             'comments_count': data['comments_count'],
             'reposts_count': data['reposts_count'],
             'text': data['text'],
             'text_raw': data['text_raw'],
-            'longTextContent': data['longTextContent']
+            'longTextContent': data['longTextContent'],
+            'video_url': video_url
         }
         return selectedData
 
@@ -85,8 +95,12 @@ class WeiboClassV2:
             for mblogid in tqdm(self.UrlList):
                 try:
                     data_json = Get_single_weibo_data(mblogid.split("/")[-1])
-                    selectedData = self.select_field(data_json)
-                    _COL.insert_one(selectedData)
+                    if data_json:
+                        data_json = Get_longTextContent(data_json)
+                        selectedData = self.select_field(data_json)
+                        _COL.insert_one(selectedData)
+                    else:
+                        pass
                 except json.decoder.JSONDecodeError:
                     pass
                 except KeyError:
@@ -104,5 +118,5 @@ class WeiboClassV2:
 
 if __name__ == '__main__':
     a = time.time()
-    WeiboClassV2('量化实习', Mongo=False).main('2023-03-11-00', '2023-03-27-21')
+    WeiboClassV2('央视频', Mongo=False).main('2023-03-11-00', '2023-03-27-21')
     print(time.time() - a)
