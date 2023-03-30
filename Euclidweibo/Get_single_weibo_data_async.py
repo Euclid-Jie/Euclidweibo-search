@@ -38,21 +38,25 @@ def Get_single_weibo_data_async(mblogid):
     header = Set_header(os.path.join(parent_dir, 'cookie.txt'))
     response = requests.get(URL, headers=header, timeout=60)  # 使用request获取网页
     html = response.content.decode('utf-8', 'ignore')  # 将网页源码转换格式为html
-    data_json = json.loads(html, strict=False)
-    return data_json
+    try:
+        data_json = json.loads(html, strict=False)
+        return data_json
+    except json.JSONDecodeError:
+        return None
 
 
 if __name__ == '__main__':
     data = Get_single_weibo_data(mblogid='MrOtA75Fd')
-    part_data = {
-        'time': data['created_at'],
-        'mid': data['mid'],
-        'nick_name': data['user']['screen_name'],
-        'attitudes_count': data['attitudes_count'],
-        'comments_count': data['comments_count'],
-        'reposts_count': data['reposts_count'],
-        'text': data['text'],
-        'text_raw': data['text_raw'],
-        'longTextContent': data['longTextContent']
-    }
-    print(part_data)
+    if data:
+        part_data = {
+            'time': data['created_at'],
+            'mid': data['mid'],
+            'nick_name': data['user']['screen_name'],
+            'attitudes_count': data['attitudes_count'],
+            'comments_count': data['comments_count'],
+            'reposts_count': data['reposts_count'],
+            'text': data['text'],
+            'text_raw': data['text_raw'],
+            'longTextContent': data['longTextContent']
+        }
+        print(part_data)

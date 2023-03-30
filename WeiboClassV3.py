@@ -47,6 +47,10 @@ class WeiboClassV3(WeiboClassV2):
             for future in as_completed(results):
                 data_json = future.result()
                 allData.append(data_json)
+            
+            # drop None because of json decode error
+            allData = [data_json for data_json in allData if data_json]
+            print("\t >>> the number of blog is {}".format(len(allData)))
 
             # LongText process
             if self.LongText:
@@ -83,7 +87,7 @@ class WeiboClassV3(WeiboClassV2):
             if BreakOrNot:
                 break
 
-        print(">>> get blog info done")
+        print("\n>>> get blog info done")
 
 
 if __name__ == '__main__':
