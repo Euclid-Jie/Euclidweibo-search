@@ -5,8 +5,10 @@
 
 
 from Euclidweibo import *
+from retrying import retry
 
 
+@retry(stop_max_attempt_number=10)
 def Get_single_weibo_data(mblogid):
     """
     get single weibo's data by weibo_url, just like https://weibo.com/1310272120/MrOtA75Fd
