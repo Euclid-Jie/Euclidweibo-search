@@ -12,7 +12,7 @@ from Euclidweibo import *
 # print(data_json)
 
 # 3、 set the url(contains keyword), then get the weibo url list, item in list is "1562868034/MkXTBh9Fk", which is contains uid and mblogid
-url_list = Get_item_url_list('https://s.weibo.com/weibo?q=杭州公园')
+url_list = Get_item_url_list('https://s.weibo.com/weibo?q=杭州公园', proxies=False)
 print(url_list)
 
 # # 4、get user's info

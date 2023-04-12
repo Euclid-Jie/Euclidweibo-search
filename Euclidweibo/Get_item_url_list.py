@@ -3,11 +3,13 @@
 # @Author  : Euclid-Jie
 # @File    : Get_item_url_list.py
 import re
+import os
 import requests_html
-from Euclidweibo import *
+from .Set_proxies import Set_proxies
+from .Set_header import Set_header
 
 
-def Get_item_url_list(URL):
+def Get_item_url_list(URL, proxies):
     """
     get all single weibo item 's url, just like https://weibo.com/1310272120/MrOtA75Fd
     1310272120 is uid
@@ -19,7 +21,8 @@ def Get_item_url_list(URL):
     current_dir = os.path.abspath(os.path.dirname(__file__))
     parent_dir = os.path.abspath(os.path.join(current_dir, os.pardir))
     header = Set_header(os.path.join(parent_dir, 'cookie.txt'))
-    response = session.get(URL, headers=header)
+    proxies = Set_proxies(proxies)
+    response = session.get(URL, headers=header, proxies=proxies)
     response.encoding = 'utf-8'
     all_url_list = list(response.html.links)
     url_list = []
@@ -33,5 +36,5 @@ def Get_item_url_list(URL):
 
 
 if __name__ == '__main__':
-    url_list = Get_item_url_list('https://s.weibo.com/weibo?q=杭州公园')
+    url_list = Get_item_url_list('https://s.weibo.com/weibo?q=杭州公园', proxies=False)
     print(url_list)

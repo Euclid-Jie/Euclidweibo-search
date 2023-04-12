@@ -17,3 +17,4 @@ from .Get_user_info import Get_user_info
 from .Get_user_all_weibo import *
 from .Utils import *
 from .EuclidDataTools import *
+from .Set_proxies import Set_proxies

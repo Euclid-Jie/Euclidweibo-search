@@ -10,10 +10,7 @@ from Euclidweibo import Set_header
 
 
 def Get_longTextContent(data_json, header=None):
-    if header is None:
-        current_dir = os.path.abspath(os.path.dirname(__file__))
-        parent_dir = os.path.abspath(os.path.join(current_dir, os.pardir))
-        header = Set_header(os.path.join(parent_dir, 'cookie.txt'))
+    header = Set_header()
     if data_json['isLongText']:
         URL = 'https://weibo.com/ajax/statuses/longtext?id={}'.format(data_json['mblogid'])
         response = requests.get(URL, headers=header, timeout=60)  # 使用request获取网页

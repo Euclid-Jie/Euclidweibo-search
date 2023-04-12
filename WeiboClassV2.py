@@ -8,12 +8,13 @@ from Euclidweibo import *
 
 
 class WeiboClassV2:
-    def __init__(self, keyWord=None, method=None, baseUrl=None, Mongo=True):
+    def __init__(self, keyWord=None, method=None, baseUrl=None, Mongo=True, proxies=False):
         self.keyWord = keyWord
         self.UrlList = None
         self.baseUrl = 'https://s.weibo.com/weibo?'
         self.method = method
         self.Mongo = Mongo
+        self.proxies = proxies
 
     def UrlFormat(self, keyWords, timeBegin: str, timeEnd: str, page: int):
         """
@@ -34,7 +35,7 @@ class WeiboClassV2:
         targetUrl = self.baseUrl + urlencode(query)
         return targetUrl
 
-    def get_url_list(self, beginTime: str, endTime: str):
+    def get_url_list(self, beginTime: str, endTime: str, proxies):
         page = 0
         NetPage = True
         self.UrlList = []
@@ -42,7 +43,7 @@ class WeiboClassV2:
         while NetPage:
             page += 1
             targetUrl = self.UrlFormat(self.keyWord, beginTime, endTime, page)
-            onePageList = Get_item_url_list(targetUrl)
+            onePageList = Get_item_url_list(targetUrl, proxies)
             tmpLen = len(self.UrlList)
             self.UrlList.extend(onePageList)
             self.UrlList = list(set(self.UrlList))
@@ -87,14 +88,14 @@ class WeiboClassV2:
         NewEndTime = endTime
         while NewEndTime > beginTime:
             print('\t time span: {} - {}'.format(beginTime, NewEndTime), end='')
-            self.get_url_list(beginTime, NewEndTime)
+            self.get_url_list(beginTime, NewEndTime, self.proxies)
             if len(self.UrlList) <= 5:
                 break
             print("\t >>> write blog url begin ...")
             BreakOrNot = True
             for mblogid in tqdm(self.UrlList):
                 try:
-                    data_json = Get_single_weibo_data(mblogid.split("/")[-1])
+                    data_json = Get_single_weibo_data(mblogid.split("/")[-1], proxies=self.proxies)
                     if data_json:
                         data_json = Get_longTextContent(data_json)
                         selectedData = self.select_field(data_json)

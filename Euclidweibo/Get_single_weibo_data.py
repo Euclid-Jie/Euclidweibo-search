@@ -4,12 +4,15 @@
 # @File    : Get_single_weibo_data.py
 
 
-from Euclidweibo import *
+from .Set_proxies import Set_proxies
+from .Set_header import Set_header
 from retrying import retry
+import requests
+import json
 
 
 @retry(stop_max_attempt_number=10)
-def Get_single_weibo_data(mblogid):
+def Get_single_weibo_data(mblogid, proxies):
     """
     get single weibo's data by weibo_url, just like https://weibo.com/1310272120/MrOtA75Fd
     which can get by using Get_item_url_list.py
@@ -35,12 +38,14 @@ def Get_single_weibo_data(mblogid):
         ......
     """
     URL = 'https://weibo.com/ajax/statuses/show?id={}'.format(mblogid)
-    current_dir = os.path.abspath(os.path.dirname(__file__))
-    parent_dir = os.path.abspath(os.path.join(current_dir, os.pardir))
-    header = Set_header(os.path.join(parent_dir, 'cookie.txt'))
-    response = requests.get(URL, headers=header, timeout=60)  # 使用request获取网页
+    # current_dir = os.path.abspath(os.path.dirname(__file__))
+    # parent_dir = os.path.abspath(os.path.join(current_dir, os.pardir))
+    # header = Set_header(os.path.join(parent_dir, 'cookie.txt'))
+    header = Set_header()
+    proxies = Set_proxies(proxies)
+    response = requests.get(URL, headers=header, timeout=60, proxies=proxies)  # 使用request获取网页
     if response.status_code != 200:
-        raise AttributeError("请更新Cookie, 并等候片刻后重试!, 当前状态码为:{}".format(response.status_code))
+        raise AttributeError("IP被封禁!, 当前状态码为:{}".format(response.status_code))
     html = response.content.decode('utf-8', 'ignore')  # 将网页源码转换格式为html
     data_json = json.loads(html, strict=False)
     try:
@@ -51,7 +56,7 @@ def Get_single_weibo_data(mblogid):
 
 
 if __name__ == '__main__':
-    data = Get_single_weibo_data(mblogid='MrOtA75Fd')
+    data = Get_single_weibo_data(mblogid='MrOtA75Fd', proxies=False)
     part_data = {
         'time': data['created_at'],
         'mid': data['mid'],
