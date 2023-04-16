@@ -12,7 +12,7 @@ import json
 
 
 @retry(stop_max_attempt_number=10)
-def Get_single_weibo_data(mblogid, proxies):
+def Get_single_weibo_data(mblogid, proxies=False):
     """
     get single weibo's data by weibo_url, just like https://weibo.com/1310272120/MrOtA75Fd
     which can get by using Get_item_url_list.py
