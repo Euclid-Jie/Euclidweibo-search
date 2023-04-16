@@ -22,6 +22,9 @@ def Get_item_url_list(URL, proxies):
     parent_dir = os.path.abspath(os.path.join(current_dir, os.pardir))
     header = Set_header(os.path.join(parent_dir, 'cookie.txt'))
     proxies = Set_proxies(proxies)
+    if proxies:
+        if '127.0.0.1' not in list(proxies.values())[0]:
+            proxies = None
     response = session.get(URL, headers=header, proxies=proxies)
     response.encoding = 'utf-8'
     all_url_list = list(response.html.links)
