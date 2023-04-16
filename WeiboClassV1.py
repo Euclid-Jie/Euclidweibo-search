@@ -76,6 +76,7 @@ class WeiboClassV1(object):
     def get_single_weibo_json(self, blog: BeautifulSoup):
         # blog is a single bolg data, type is Bs4.soup
         mid = blog.attrs['mid']
+        mblogid = re.findall('(?<=/)[A-Za-z0-9]+(?=\?)',blog.find('div', 'from').a['href'])[0]
         uid = re.findall('(?<=/)\d+(?=\?)', blog.find('div', 'avator').a['href'])[0]
         nick_name = blog.find('p', attrs={'node-type': "feed_list_content"}).attrs['nick-name']
 
@@ -95,6 +96,7 @@ class WeiboClassV1(object):
         act = self.get_act_number(blog.find('div', 'card-act').find_all('li'))
         data_json = {
             'mid': mid,
+            'mblogid': mblogid,
             'uid': uid,
             'nick_name': nick_name,
             'time': time_dt,
