@@ -18,3 +18,4 @@ from .Get_user_all_weibo import *
 from .Utils import *
 from .EuclidDataTools import *
 from .Set_proxies import Set_proxies
+from .Get_Pic import Get_Pic

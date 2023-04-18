@@ -21,3 +21,6 @@ print(data_json)
 
 # 5、get user's all blog
 # Get_user_all_weibo(7416119836, 100, begin=50)
+
+# 6、get pic
+# Get_Pic(pic_id_list=['0061gDXGgy1h8isigtfjmj32c02c0kjl'], root_name='Test', subFolder='Weibo/Pic')
