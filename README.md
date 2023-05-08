@@ -5,7 +5,7 @@
 
 ### 1、设置Cookie
 
-将Cookie写入Cookie.txt中，详见[注意事项](##注意事项)。
+将Cookie写入Cookie.txt中，详见[注意事项](##注意事项)，80%的报错/运行异常由Cookie设置不正确引起，特录制获取Cookie的[视频](https://www.bilibili.com/video/BV1Sh4y1J7Yz)，欢迎观看，获取正确的Cookie
 
 ### 2、修改参数并运行
 
