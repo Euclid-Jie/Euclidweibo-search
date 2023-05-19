@@ -131,8 +131,8 @@ class WeiboClassV1(object):
         elif '今天' in time_str:  # 今天的数据, 只显示时分, 需要增加年月日
             time_str = datetime.date.today().strftime("%Y-%m-%d") + time_str.replace('今天', '-')
         elif '分钟前' in time_str:  # 距离数据采集时间一小时内, 使用当前时间回望
-            minutes_num = re.findall('/d+', time_str)[0]
-            time_str = datetime.datetime.now() - datetime.timedelta(minutes=minutes_num)  # 实际上为dt格式, 不是str, 不过不影响pd.to_datetime()
+            minutes_num = re.findall(r"\d+", time_str)[0]
+            time_str = datetime.datetime.now() - datetime.timedelta(minutes=int(minutes_num))  # 实际上为dt格式, 不是str, 不过不影响pd.to_datetime()
         else:  # 今年非今天的数据, 需要增加年
             time_str = datetime.date.today().strftime('%Y') + '-' + time_str.replace('月', '-').replace('日', '-')
         time_dt = pd.to_datetime(time_str)
