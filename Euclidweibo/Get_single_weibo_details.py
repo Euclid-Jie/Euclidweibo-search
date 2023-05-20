@@ -150,8 +150,8 @@ class Get_single_weibo_details:
         # 类知乎评论, 滚动更新
         total_comments_num = 0
         # 默认按热度另有按时间
-        # https://weibo.com/ajax/statuses/buildComments?flow=1&is_reload=1&id=4891069625402595&is_show_bulletin=2
-        URL = 'https://weibo.com/ajax/statuses/buildComments?is_reload=1&id={}&is_show_bulletin=2'.format(self.mid)
+        # https://weibo.com/ajax/statuses/buildComments?flow=1&is_reload=1&id=4902567073546360&is_show_bulletin=2&is_mix=0&count=10&uid=2989616011&fetch_level=0
+        URL = 'https://weibo.com/ajax/statuses/buildComments?flow=1&is_reload=1&id={}&is_show_bulletin=2&is_mix=0&count=10&fetch_level=0'.format(self.mid)
         # init
         data_json = Get_json_data(URL, self.header)
         total_comments = data_json['total_number']
@@ -169,7 +169,8 @@ class Get_single_weibo_details:
                 if max_id == 0:
                     break
                 else:
-                    URL = 'https://weibo.com/ajax/statuses/buildComments?is_reload=1&id={}&is_show_bulletin=2&max_id={}'.format(self.mid, max_id)
+                    URL = 'https://weibo.com/ajax/statuses/buildComments?flow=1&is_reload=1&id={}&is_show_bulletin=2&is_mix=0&count=20&fetch_level=0'.format(
+                        self.mid, max_id)
                     data_json = Get_json_data(URL, self.header)
         print("共写入{}条".format(total_comments_num))
 
