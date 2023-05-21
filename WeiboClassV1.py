@@ -112,6 +112,8 @@ class WeiboClassV1(object):
                 return data_json
             else:
                 return None
+        else:
+            return data_json
 
     def get_total_pages(self):
         """
@@ -196,5 +198,5 @@ class WeiboClassV1(object):
 if __name__ == '__main__':
     timeBegin = '2023-03-01-0'
     timeEnd = '2023-03-10-0'
-    demoClass = WeiboClassV1(Mongo=False)
+    demoClass = WeiboClassV1(Mongo=False, contains=False)
     demoClass.main_get(['北师大', '珠海'], timeBegin, timeEnd)

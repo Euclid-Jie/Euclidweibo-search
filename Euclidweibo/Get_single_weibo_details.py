@@ -169,7 +169,7 @@ class Get_single_weibo_details:
                 if max_id == 0:
                     break
                 else:
-                    URL = 'https://weibo.com/ajax/statuses/buildComments?flow=1&is_reload=1&id={}&is_show_bulletin=2&is_mix=0&count=20&fetch_level=0'.format(
+                    URL = 'https://weibo.com/ajax/statuses/buildComments?flow=1&is_reload=1&id={}&is_show_bulletin=2&is_mix=0&max_id={}&count=20&fetch_level=0'.format(
                         self.mid, max_id)
                     data_json = Get_json_data(URL, self.header)
         print("共写入{}条".format(total_comments_num))
@@ -200,4 +200,4 @@ class Get_single_weibo_details:
 
 
 if __name__ == '__main__':
-    Get_single_weibo_details('attitudes', mblogid='MCd8umFsD', header=Set_header('../cookie.txt'), Mongo=False).main_get()
+    Get_single_weibo_details('comments', mblogid='N1aaE3qs1', header=Set_header('../cookie.txt'), Mongo=False).main_get()
