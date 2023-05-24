@@ -167,12 +167,15 @@ class WeiboClassV1(object):
 
         print('-*' * 20)
         for self.keyWord in keyList:
+            # set each keyWord's collection name
             if ColName is None:
-                ColName = self.keyWord
-            if self.Mongo:
-                self._COL = MongoClient('Weibo', ColName)
+                itemColName = self.keyWord
             else:
-                self._COL = CsvClient('Weibo', ColName)
+                itemColName = ColName
+            if self.Mongo:
+                self._COL = MongoClient('Weibo', itemColName)
+            else:
+                self._COL = CsvClient('Weibo', itemColName)
 
             print('> get {} blog data begin ... '.format(self.keyWord))
             NewEndTime = endTime
