@@ -4,7 +4,7 @@
 # @File    : Utils.py
 import json
 import time
-
+from retrying import retry
 import requests
 from bs4 import BeautifulSoup
 
@@ -34,6 +34,8 @@ def Get_json_data_sub(URL, header):
     else:
         return None
 
+
+@retry(stop_max_attempt_number=10)
 def Get_soup_data(URl, header):
     response = requests.get(URl, headers=header, timeout=60)  # 使用request获取网页
     html = response.content.decode('utf-8', 'ignore')  # 将网页源码转换格式为html

@@ -190,7 +190,7 @@ class WeiboClassV1(object):
                 min_time_dt = self.get_all_pages_data()
 
                 # update time end
-                if pd.to_datetime(NewEndTime, format='%Y-%m-%d-%H') >= min_time_dt:
+                if pd.to_datetime(NewEndTime, format='%Y-%m-%d-%H') > min_time_dt:
                     min_time_dt_lag = min_time_dt + pd.tseries.offsets.Hour(1)
                     NewEndTime = min_time_dt_lag.strftime('%Y-%m-%d-%H')
                 else:
