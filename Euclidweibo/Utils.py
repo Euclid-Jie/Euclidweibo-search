@@ -4,9 +4,24 @@
 # @File    : Utils.py
 import json
 import time
-
+from retrying import retry
 import requests
 from bs4 import BeautifulSoup
+from concurrent.futures import ThreadPoolExecutor
+from tqdm import tqdm
+from concurrent.futures import as_completed
+from datetime import datetime
+import os
+
+from .Set_header import Set_header
+from .MongoClient import MongoClient
+from .EuclidDataTools import CsvClient
+
+
+def run_thread_pool_sub(target, args, max_work_count):
+    with ThreadPoolExecutor(max_workers=max_work_count) as t:
+        res = [t.submit(target, i) for i in args]
+        return res
 
 
 def Get_json_data(URL, header, max_try_times=100):
@@ -34,6 +49,8 @@ def Get_json_data_sub(URL, header):
     else:
         return None
 
+
+@retry(stop_max_attempt_number=10)
 def Get_soup_data(URl, header):
     response = requests.get(URl, headers=header, timeout=60)  # 使用request获取网页
     html = response.content.decode('utf-8', 'ignore')  # 将网页源码转换格式为html

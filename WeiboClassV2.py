@@ -100,17 +100,19 @@ class WeiboClassV2:
                         data_json = Get_longTextContent(data_json)
                         selectedData = self.select_field(data_json)
                         _COL.insert_one(selectedData)
+                        # upDate date
+                        tmpTime = pd.to_datetime(selectedData['time']).strftime("%Y-%m-%d-%H")
                     else:
-                        pass
+                        tmpTime = None
                 except json.decoder.JSONDecodeError:
-                    pass
+                    tmpTime = None
                 except KeyError:
-                    pass
-                # upDate date
-                tmpTime = pd.to_datetime(selectedData['time']).strftime("%Y-%m-%d-%H")
-                if NewEndTime >= tmpTime:
-                    NewEndTime = tmpTime
-                    BreakOrNot = False
+                    tmpTime = None
+
+                if tmpTime:
+                    if NewEndTime >= tmpTime:
+                        NewEndTime = tmpTime
+                        BreakOrNot = False
             if BreakOrNot:
                 break
             print("\t >>> write blog url done")
@@ -118,6 +120,6 @@ class WeiboClassV2:
 
 
 if __name__ == '__main__':
-    a = time.time()
-    WeiboClassV2('央视频', Mongo=False).main('2023-03-11-00', '2023-03-27-21')
-    print(time.time() - a)
+    # a = time.time()
+    WeiboClassV2('流浪地球', Mongo=False, proxies=False).main('2023-01-28-00', '2023-02-10-00')
+    # print(time.time() - a)
