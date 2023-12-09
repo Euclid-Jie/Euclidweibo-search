@@ -2,20 +2,9 @@
 # @Time    : 2023/3/21 21:32
 # @Author  : Euclid-Jie
 # @File    : Get_user_all_weibo.py
-import json
-import requests
-from tqdm import tqdm
-from datetime import datetime
-import os
-from Euclidweibo import *
-from Euclidweibo.Utils import Get_json_data
-from concurrent.futures import ThreadPoolExecutor, as_completed
-
-
-def run_thread_pool_sub(target, args, max_work_count):
-    with ThreadPoolExecutor(max_workers=max_work_count) as t:
-        res = [t.submit(target, i) for i in args]
-        return res
+# @desc    : 仅能被调用, 不能直接被执行
+from .Get_Pic import Get_Pic
+from .Utils import *
 
 
 def deal_single_weibo(para):
@@ -24,8 +13,12 @@ def deal_single_weibo(para):
         longText_URL = 'https://weibo.com/ajax/statuses/longtext?id={}'.format(single_weibo['mblogid'])
         response = requests.get(longText_URL, headers=_HEADER, timeout=60)  # 使用request获取网页
         html = response.content.decode('utf-8', 'ignore')  # 将网页源码转换格式为html
-        longTextContent = json.loads(html)['data']['longTextContent']
-        single_weibo['longTextContent'] = longTextContent
+        try:
+            longTextContent = json.loads(html)['data']['longTextContent']
+            single_weibo['longTextContent'] = longTextContent
+        except KeyError:
+            # 说明正文中有展开, 而不是真的需要展开
+            single_weibo['longTextContent'] = ''
     else:
         single_weibo['longTextContent'] = ''
 
@@ -63,7 +56,10 @@ def Get_user_all_weibo(uid, totalPages, begin=1, query=None, colName=None, csv=F
     :param uid: the user's id
     :param totalPages: the total pages u want get, almost 20 blogs of each page
     :param begin: the beginning page u want to start
-    :colName: the collection name u want to store
+    :param query:
+    :param colName: the collection name u want to store
+    :param csv:
+    :param pic:
     """
     if not colName:
         colName = uid
@@ -87,7 +83,3 @@ def Get_user_all_weibo(uid, totalPages, begin=1, query=None, colName=None, csv=F
                 res = future.result()
                 pass
             t.set_postfix({"状态": "已写入{}条".format(len(data_json['data']['list']))})
-
-
-if __name__ == '__main__':
-    Get_user_all_weibo(1624923463, 100, csv=True, pic=True)

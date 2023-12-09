@@ -7,6 +7,21 @@ import time
 from retrying import retry
 import requests
 from bs4 import BeautifulSoup
+from concurrent.futures import ThreadPoolExecutor
+from tqdm import tqdm
+from concurrent.futures import as_completed
+from datetime import datetime
+import os
+
+from .Set_header import Set_header
+from .MongoClient import MongoClient
+from .EuclidDataTools import CsvClient
+
+
+def run_thread_pool_sub(target, args, max_work_count):
+    with ThreadPoolExecutor(max_workers=max_work_count) as t:
+        res = [t.submit(target, i) for i in args]
+        return res
 
 
 def Get_json_data(URL, header, max_try_times=100):
