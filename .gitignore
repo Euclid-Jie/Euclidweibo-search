@@ -1,0 +1,7 @@
+.history
+Weibo
+*.pyc
+.vs
+.vscode
+.idea
+__pycache__
