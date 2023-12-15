@@ -39,7 +39,9 @@ class WeiboSearchOptions(BaseModel):
 
     # save options
     mongo_save: bool = False
-    ColName: str = None  # if u want to save all keywords in one collection, set this
+    ColName: Optional[
+        str
+    ] = None  # if u want to save all keywords in one collection, set this
 
 
 class WeiboClassV1:
@@ -125,6 +127,7 @@ class WeiboClassV1:
         ## 处理转评赞
         act = self.get_act_number(blog.find("div", "card-act").find_all("li"))
         data_json = {
+            "keyWords": self.keyWord,
             "mid": mid,
             "mblogid": mblogid,
             "uid": uid,
@@ -261,16 +264,3 @@ class WeiboClassV1:
                 # update time end
                 search_span = self.update_time_span(search_span, new_end_time)
             print("> get all blog info done")
-
-
-if __name__ == "__main__":
-    search_options = WeiboSearchOptions(
-        cookie_path="cookie.txt",
-        limit=3,
-        keyword_list=["北师大", "珠海"],
-        start_time="2020-01-01-0",
-        end_time="2020-01-10-0",
-        mongo_save=True,
-        ColName="test",
-    )
-    WeiboClassV1(search_options).main_get()

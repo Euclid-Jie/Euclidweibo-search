@@ -15,9 +15,10 @@ search_options = WeiboSearchOptions(
     keyword_list=["北师大", "北京师范大学", "北京师范大学统计学院", "BNU", "北师", "北京师范大学珠海校区"],
     start_time="2020-01-01-0",
     end_time="2020-01-10-0",
+    keyword_contain=True,
     # 设置为True，将数据写入MongoDB, 否则写入CSV
-    mongo_save=True,
-    ColName="test",
+    mongo_save=False,
+    ColName="release_test",
 )
 # 运行函数前, 请先设置cookie.txt
 WeiboClassV1(search_options).main_get()

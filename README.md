@@ -3,85 +3,107 @@
 爬取指定时间区间内，包含指定关键词、话题的原创微博，此代码长期维护，如有疑问欢迎`Issues`
 ## 快速开始
 
-### 1、设置Cookie
+### 1、下载项目并安装依赖
+
+- 直接使用`git clone`，或者直接点击蓝色的`<>Code` -> `Download ZIP`下载到本地进行解压也可
+
+  ```bash
+  https://github.com/Euclid-Jie/Euclidweibo-search.git
+  ```
+
+- 使用`pip`安装依赖
+
+  ```bash
+  pip install -r requirement.txt
+  ```
+
+### 2、设置Cookie
 
 将Cookie写入Cookie.txt中，详见[注意事项](##注意事项)，80%的报错/运行异常由Cookie设置不正确引起，特录制获取Cookie的[视频](https://www.bilibili.com/video/BV1Sh4y1J7Yz)，欢迎观看，获取正确的Cookie
 
-### 2、修改参数并运行
+### 3、修改参数并运行`WeiboClassRun`
 
-- `V1`
+🛎️ **Attention!!** 目前有两种数据写入方式，请结合自身情选择选择，具体选择方式为修改`mongo_save`参数
 
-  ```python
-  timeBegin = '2023-03-01-0'
-  timeEnd = '2023-03-10-0'
-  demoClass = WeiboClassV1(Mongo=False)
-  demoClass.main_get(['北师大', '珠海'], timeBegin, timeEnd)
-  ```
+- `mongo_save=False`：将输出写为`csv`文件，数据文件将以`csv`格式存储至`.Weibo\`目录下
+- `mongo_save=True`：以默认`27017`端口连接`MongoDB`数据库，写入的`collection`名为`Weibo`
 
-- `V2`
+```python
+# 设置参数
+search_options = WeiboSearchOptions(
+    # cookie文件路径
+    cookie_path="cookie.txt",
+    
+    # 最小时间跨度更新页面数阈值，建议3~5
+    limit=3,
+    
+    # 关键词
+    keyword_list=["北师大", "北京师范大学", "北京师范大学统计学院", "BNU", "北师", "北京师范大学珠海校区"],
+    
+    # 开始时间, 格式为"YYYY-MM-DD-H"
+    start_time="2020-01-01-0",
+    
+    # 结束时间, 格式为"YYYY-MM-DD-H"
+    end_time="2020-01-10-0",
+    
+    # 是否要求微博内容严格包含关键词
+    keyword_contain=True,
+    
+    # 设置为True，将数据写入MongoDB, 否则写入CSV
+    mongo_save=True,
+    
+    # 默认为None, 每个关键词的数据将各存为一个文件
+    # 如果进行设置，所有关键词将写入同一个csv，csv名为ColName，
+    ColName="test",
+)
+```
 
-    ```python
-    WeiboClassV2('量化实习').main('2023-03-11-00', '2023-03-27-21')
-    ```
+## 更新日志
 
-- `V3`
+*20231215* 简化代码结构，废弃冗余代码
 
-  ```python
-  WeiboClassV3('央视频', Mongo=False, proxies=False).main('2023-02-11-00', '2023-03-27-21')
-  ```
+- 入口函数改为`WeiboClassRun.py`，调用`WeiboClassV1`
+- 使用`search_options`方式进行参数设定
 
+- `WeiboClassV2`, `WeiboClassV3`暂停止维护, 如有使用问题请提`issue`
 
-### 3、参数说明
+*long long ago*
 
-- 关键词，`str`或`List`格式，`V1`兼容两种格式，`V2`，`V3`只能传入`str`
+- 老版本`WeiboClassRun.py`已废弃，正式更新`WeiboClassV1.py`
 
-  ```python
-  keyWord = '北京师范大学'
-  keyWord = ['北京师范大学']
-  keyWord = '%23北京师范大学120周年校庆%23' # %23转义后即为#，表示爬取包含话题的微博
-  ```
+- 另有批次请求版本`WeiboClassV2.py`，及多线程请求版本`WeiboClassV3.py`可供选择
 
-- 时间区间，各位为`YY-mm-dd-hh`
-
-  ```python
-  timeBegin = '2022-09-01-00' # 开始时间
-  timeEnd = '2022-09-08-10' # 结束时间
-  ```
-
-- 其他参数
-
-  ```python
-  Mongo=False  # 设置为写入csv 或 MongoDB
-  ColName=None  # 存储的文件名
-  max_work_count=20  # 线程池个数
-  LongText=False  # 是否需要长文本, 开启将降速
-  ```
-
-## 最新说明
-
-老版本`WeiboClassRun.py`已废弃，正式更新`WeiboClassV1.py`
-
-另有批次请求版本`WeiboClassV2.py`，及多线程请求版本`WeiboClassV3.py`可供选择
-
-若请求速度过快已封号推荐使用`V1`，或者传入`IP`代理
-
-🛎️ **Attention!!** 目前有两种数据写入方式，请结合自身情选择选择，具体选择方式为修改`Mongo`参数，默认为`True`
-
-- `Mongo=False`：将输出写为csv文件
-- `Mongo=True`：MongoDB数据库
+- 若请求速度过快已封号推荐使用`V1`，或者传入`IP`代理
 
 ## 代码结构
 
 ```python
-EuclidWeibo # 工具包
-WeiboClassV1.py # 主函数，在此更改参数
-WeiboClassV2.py # 主函数，在此更改参数
-WeiboClassV3.py # 主函数，多线程版本，在此更改参数
+WeiboClassRun.py # 入口函数
+WeiboClassV1.py # 主请求函数
+
+EuclidWeibo.py # 工具包
+Euclid_weibo_Test.py # 使用样例
+WeiboClassV2.py # 主请求函数，在此更改参数，暂停止维护
+WeiboClassV3.py # 主请求函数，多线程版本，在此更改参数，暂停止维护
 ```
+
+
+## 输出文件字段说明
+
+| 名称              | 含义                   |
+| ----------------- | ---------------------- |
+| keyWords          | 检索的关键词           |
+| mid               | 微博标识ID，为一串数字 |
+| time              | 微博发布时间           |
+| nick_name         | 微博发布者昵称         |
+| content           | 微博内容               |
+| 转发数(reposts)   | 微博转发数             |
+| 评价数(comments)  | 微博评价数             |
+| 点赞数(attitudes) | 微博点赞数             |
 
 ## Euclidweibo package
 
-🛎️开发已完成，可直接使用`pip`安装，具体见可[EuclidSearchPackage](https://github.com/Euclid-Jie/EuclidSearchPackage)
+🛎️开发已完成，可直接使用`pip`安装，具体见可[`EuclidSearchPackage`](https://github.com/Euclid-Jie/EuclidSearchPackage)
 
 ```markdown
 Euclidweibo
@@ -94,21 +116,6 @@ Euclidweibo
     - Get_user_info.py  # 获取微博用户账号信息
 Euclid_weibo_Test.py  # 功能展示, 所展示的均为可用
 ```
-
-
-## 输出内容
-
-| 名称              | 含义                   |
-| ----------------- | ---------------------- |
-| mid               | 微博标识ID，为一串数字 |
-| time              | 微博发布时间           |
-| nick_name         | 微博发布者昵称         |
-| Text              | 微博内容               |
-| Text_raw          | 原始内容               |
-| LongText_content  | 长内容格式             |
-| 转发数(reposts)   | 微博转发数             |
-| 评价数(comments)  | 微博评价数             |
-| 点赞数(attitudes) | 微博点赞数             |
 
 ## 注意事项
 
