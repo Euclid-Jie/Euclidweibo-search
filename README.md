@@ -14,7 +14,7 @@
 - 使用`pip`安装依赖
 
   ```bash
-  pip install -r requirement.txt
+  pip install -r requirements.txt
   ```
 
 ### 2、设置Cookie
