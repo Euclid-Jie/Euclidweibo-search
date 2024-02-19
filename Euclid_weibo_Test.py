@@ -23,4 +23,4 @@ from Euclidweibo import *
 # Get_user_all_weibo(7416119836, 100, begin=50)
 
 # 6、get user's all blog and pic
-Get_user_all_weibo(6572153436, 100, begin=1, csv=True, pic=True)
+Get_user_all_weibo(6572153436, csv=True, pic=True)

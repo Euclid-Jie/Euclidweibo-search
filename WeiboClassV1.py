@@ -39,9 +39,9 @@ class WeiboSearchOptions(BaseModel):
 
     # save options
     mongo_save: bool = False
-    ColName: Optional[
-        str
-    ] = None  # if u want to save all keywords in one collection, set this
+    ColName: Optional[str] = (
+        None  # if u want to save all keywords in one collection, set this
+    )
 
 
 class WeiboClassV1:
@@ -101,9 +101,9 @@ class WeiboClassV1:
         # blog is a single bolg data, type is Bs4.soup
         mid = blog.attrs["mid"]
         mblogid = re.findall(
-            "(?<=/)[A-Za-z0-9]+(?=\?)", blog.find("div", "from").a["href"]
+            r"(?<=/)[A-Za-z0-9]+(?=\?)", blog.find("div", "from").a["href"]
         )[0]
-        uid = re.findall("(?<=/)\d+(?=\?)", blog.find("div", "avator").a["href"])[0]
+        uid = re.findall(r"(?<=/)\d+(?=\?)", blog.find("div", "avator").a["href"])[0]
         nick_name = blog.find("p", attrs={"node-type": "feed_list_content"}).attrs[
             "nick-name"
         ]

@@ -2,8 +2,9 @@
 # @Time    : 2023/3/11 10:45
 # @Author  : Euclid-Jie
 # @File    : EuclidDataTools.py
-import os
 import pandas as pd
+from pathlib import Path
+from typing import Optional, Union
 
 
 class EuclidCsvTools:
@@ -11,12 +12,18 @@ class EuclidCsvTools:
     this class include tools used to precess csv file
     """
 
-    def __init__(self, subFolder: str = None, FileName: str = 'DemoOut.csv'):
+    def __init__(
+        self,
+        subFolder: Optional[Union[str, Path]] = None,
+        FileName: str = "DemoOut.csv",
+    ):
         # para init
-        self.subFolder = subFolder
+        if subFolder:
+            self.subFolder = Path(subFolder)
+
+        assert FileName.endswith(".csv"), "file name must end with .csv"
         self.FileName = FileName
-        self.FullFilePath = None
-        self.FullFolderPath = None
+        self.path_clear()
 
     def path_clear(self):
         """
@@ -24,14 +31,16 @@ class EuclidCsvTools:
         :return:
         """
         if self.subFolder:
-            if '\\' in self.subFolder:
-                self.FullFolderPath = os.getcwd() + self.subFolder
-            else:
-                self.FullFolderPath = os.getcwd() + '\\' + self.subFolder
+            self.FullFolderPath = Path.cwd().joinpath(self.subFolder)
+            self.FullFolderPath.mkdir(parents=True, exist_ok=True)
+            self.FullFilePath = (
+                Path.cwd().joinpath(self.subFolder).joinpath(self.FileName)
+            )
         else:
-            self.FullFolderPath = os.getcwd()
-        self.FullFilePath = os.path.join(self.FullFolderPath, self.FileName)
-        print('文件将存储在: {}'.format(self.FullFilePath))
+            self.FullFolderPath = Path.cwd()
+            self.FullFolderPath.mkdir(parents=True, exist_ok=True)
+            self.FullFilePath = Path.cwd().joinpath(self.FileName)
+        print("文件将存储在: {}".format(self.FullFilePath))
 
     def saveCsvFile(self, df, append=False):
         """
@@ -40,45 +49,42 @@ class EuclidCsvTools:
         :param append: True(append save) or False(overwrite)
         :return:
         """
-        if not self.FullFilePath:
-            self.path_clear()
-
-        if os.path.exists(self.FullFolderPath):
-            # folder path exit
-            if append:
-                self.writeDf2Csv(df, self.FullFilePath)
-            else:
-                df.to_csv(self.FullFilePath, encoding='utf_8_sig', index=False)
+        if append and self.FullFilePath.exists():
+            self.writeDf2Csv(df, self.FullFilePath)
         else:
-            # no dir exists then make one and save data to csv
-            os.mkdir(self.FullFolderPath)
-            if append:
-                self.writeDf2Csv(df, self.FullFilePath)
-            else:
-                df.to_csv(self.FullFilePath, encoding='utf_8_sig', index=False)
+            df.to_csv(self.FullFilePath, encoding="utf_8_sig", index=False)
 
     @classmethod
-    def writeDf2Csv(cls, df, FullFilePath):
-        if not os.path.exists(FullFilePath):
-            # write out a new file with header
-            df.to_csv(FullFilePath, mode='w', encoding='utf_8_sig', header=True, index=False)
-        else:
+    def writeDf2Csv(cls, df: pd.DataFrame, FullFilePath):
+        if FullFilePath.exists():
             # write after a exist file without header
-            df.to_csv(FullFilePath, mode='a', encoding='utf_8_sig', header=False, index=False)
+            df.to_csv(
+                FullFilePath, mode="a", encoding="utf_8_sig", header=False, index=False
+            )
+        else:
+            # write out a new file with header
+            df.to_csv(
+                FullFilePath, mode="w", encoding="utf_8_sig", header=True, index=False
+            )
 
 
 class CsvClient(EuclidCsvTools):
-    def __init__(self, subFolder: str = None, FileName: str = 'DemoOut.csv'):
+    def __init__(
+        self,
+        subFolder: Optional[Union[str, Path]] = None,
+        FileName: str = "DemoOut.csv",
+    ):
         """
         :param subFolder:
         :param FileName:
         """
+        if ~FileName.endswith(".csv") and "." not in FileName:
+            FileName = FileName + ".csv"
+        else:
+            raise ValueError("FileName must end with .csv or not contain '.'")
         super().__init__(subFolder=subFolder, FileName=FileName)
-        if FileName[-4:] != '.csv':
-            self.FileName = self.FileName + '.csv'
-        self.path_clear()
 
-    def insert_one(self, data):
+    def insert_one(self, data: Union[dict, pd.DataFrame]):
         if isinstance(data, dict):
             data = pd.DataFrame([data])
         elif isinstance(data, pd.DataFrame):
