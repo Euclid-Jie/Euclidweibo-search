@@ -23,4 +23,7 @@ from Euclidweibo import *
 # Get_user_all_weibo(7416119836, 100, begin=50)
 
 # 6、get user's all blog and pic
-Get_user_all_weibo(6572153436, csv=True, pic=True)
+# Get_user_all_weibo(7416119836, csv=True, pic=True)
+
+# 7、update cookie
+weiboCookie().update_cookie()
