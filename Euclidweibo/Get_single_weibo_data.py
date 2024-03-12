@@ -10,6 +10,8 @@ from retrying import retry
 import requests
 import json
 
+__all__ = ["Get_single_weibo_data"]
+
 
 @retry(stop_max_attempt_number=10)
 def Get_single_weibo_data(mblogid, proxies=False):
@@ -37,34 +39,21 @@ def Get_single_weibo_data(mblogid, proxies=False):
         screen_name: the user who created this weibo
         ......
     """
-    URL = 'https://weibo.com/ajax/statuses/show?id={}'.format(mblogid)
+    URL = "https://weibo.com/ajax/statuses/show?id={}".format(mblogid)
     # current_dir = os.path.abspath(os.path.dirname(__file__))
     # parent_dir = os.path.abspath(os.path.join(current_dir, os.pardir))
     # header = Set_header(os.path.join(parent_dir, 'cookie.txt'))
     header = Set_header()
     proxies = Set_proxies(proxies)
-    response = requests.get(URL, headers=header, timeout=60, proxies=proxies)  # 使用request获取网页
+    response = requests.get(
+        URL, headers=header, timeout=60, proxies=proxies
+    )  # 使用request获取网页
     if response.status_code != 200:
         raise AttributeError("IP被封禁!, 当前状态码为:{}".format(response.status_code))
-    html = response.content.decode('utf-8', 'ignore')  # 将网页源码转换格式为html
+    html = response.content.decode("utf-8", "ignore")  # 将网页源码转换格式为html
     data_json = json.loads(html, strict=False)
     try:
         data_json = json.loads(html, strict=False)
         return data_json
     except json.JSONDecodeError:
         return None
-
-
-if __name__ == '__main__':
-    data = Get_single_weibo_data(mblogid='MrOtA75Fd', proxies=False)
-    part_data = {
-        'time': data['created_at'],
-        'mid': data['mid'],
-        'nick_name': data['user']['screen_name'],
-        'attitudes_count': data['attitudes_count'],
-        'comments_count': data['comments_count'],
-        'reposts_count': data['reposts_count'],
-        'text': data['text'],
-        'text_raw': data['text_raw']
-    }
-    print(part_data)

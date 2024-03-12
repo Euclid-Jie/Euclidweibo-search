@@ -13,23 +13,18 @@ search_options = WeiboSearchOptions(
     cookie_path="cookie.txt",
     limit=3,
     keyword_list=[
-        "北师大",
-        "北京师范大学",
-        "北京师范大学统计学院",
-        "BNU",
-        "北师",
-        "北京师范大学珠海校区",
+        "东方精工",
     ],
-    start_time="2024-01-01-0",
-    end_time="2024-01-10-0",
+    start_time="2024-03-01-0",
+    end_time="2024-03-11-00",
     keyword_contain=True,
     # 设置为True，将数据写入MongoDB, 否则写入CSV
     mongo_save=False,
-    ColName="release_1",
+    ColName="东方精工",
 )
 # 运行函数前, 请先设置cookie.txt
 # 自动更新cookie
-weiboCookie().update_cookie()
+# weiboCookie().update_cookie()
 WeiboClassV1(search_options).main_get()
 
 # ---------------读取MongoDB数据至CSV

@@ -3,10 +3,21 @@
 # @Author  : Euclid-Jie
 # @File    : Get_user_all_weibo.py
 # @desc    : 仅能被调用, 不能直接被执行
+from datetime import datetime
+import requests
 from typing import Optional
-import warnings
+import json
+import os
+from tqdm import tqdm
 from .Get_Pic import Get_Pic
-from .Utils import *
+from .Set_header import Set_header
+from .EuclidDataTools import CsvClient
+from .Get_user_info import Get_user_info
+from .MongoClient import MongoClient
+from .Utils import run_thread_pool_sub, Get_json_data
+from concurrent.futures import as_completed
+
+__all__ = ["Get_user_all_weibo"]
 
 
 def deal_single_weibo(para):
@@ -55,11 +66,9 @@ def deal_single_weibo(para):
             else:
                 pic_id_list = None
             if pic_id_list:
-                root_name = int(
-                    datetime.strptime(
-                        single_weibo["created_at"], "%a %b %d %H:%M:%S +0800 %Y"
-                    ).timestamp()
-                )
+                root_name = datetime.strptime(
+                    single_weibo["created_at"], "%a %b %d %H:%M:%S +0800 %Y"
+                ).strftime("%Y-%m-%d-%H-%M-%S")
                 Get_Pic(
                     pic_id_list=pic_id_list,
                     root_name=str(root_name),
@@ -89,8 +98,10 @@ def Get_user_all_weibo(
     :param pic:
     """
     if not totalPages:
-        totalPages = 100
-        warnings.warn("totalPages is not specified, the default value is 100")
+        user_info = Get_user_info(uid)
+        statuses_count = user_info["user"]["statuses_count"]
+        totalPages = statuses_count // 20 + 1
+        print("totalPages is not specified, the default value is {}".format(totalPages))
     if not colName:
         colName = uid
     if not csv:

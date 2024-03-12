@@ -5,6 +5,8 @@
 import pymongo
 import pandas as pd
 
+__all__ = ["MongoClient", "read_mongo"]
+
 
 def MongoClient(DBName, collectionName):
     # 连接数据库

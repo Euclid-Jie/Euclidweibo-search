@@ -7,6 +7,8 @@ from bs4 import BeautifulSoup
 from .Set_header import Set_header
 from pathlib import Path
 
+__all__ = ["weiboCookie"]
+
 
 class weiboCookie:
     def __init__(self, port=9222, cookie_path="cookie.txt"):
@@ -31,7 +33,11 @@ class weiboCookie:
             )
             with open(self.cookie_path, "w") as f:
                 f.write(cookies_str)
-            print("cookie已更新")
+                
+            if self.test_cookie():
+                print("cookie已更新")
+            else:
+                print("cookie更新失败, 请查看是否登录微博")
 
     def test_cookie(self) -> bool:
         response = requests.get("http://weibo.cn", cookies=Set_header(self.cookie_path))

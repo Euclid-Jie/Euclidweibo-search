@@ -4,7 +4,8 @@
 # @File    : Get_Pic.py
 import os
 import requests
-import urllib3
+
+__all__ = ["Get_Pic"]
 
 header = {
     "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "

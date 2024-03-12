@@ -4,7 +4,11 @@
 # @Author  : Euclid-Jie
 # @File    : weiboTime.py
 """
+
 import pandas as pd
+from typing import Union
+
+__all__ = ["weiboTime"]
 
 
 class weiboTime:
@@ -12,7 +16,7 @@ class weiboTime:
     用于处理微博时间的类, 直接返回为str格式, 例如: 2021-01-01-0
     """
 
-    def __init__(self, time_dt: [pd.Timestamp, str]):
+    def __init__(self, time_dt: Union[pd.Timestamp, str]):
         if isinstance(time_dt, str):
             self.time_dt = pd.to_datetime(time_dt, format="%Y-%m-%d-%H")
         elif isinstance(time_dt, pd.Timestamp):

@@ -8,14 +8,14 @@ from retrying import retry
 import requests
 from bs4 import BeautifulSoup
 from concurrent.futures import ThreadPoolExecutor
-from tqdm import tqdm
-from concurrent.futures import as_completed
-from datetime import datetime
-import os
 
-from .Set_header import Set_header
-from .MongoClient import MongoClient
-from .EuclidDataTools import CsvClient
+__all__ = [
+    "run_thread_pool_sub",
+    "Get_json_data",
+    "Get_json_data_sub",
+    "Get_soup_data",
+    "remove_upPrintable_chars",
+]
 
 
 def run_thread_pool_sub(target, args, max_work_count):
@@ -43,7 +43,7 @@ def Get_json_data(URL, header, max_try_times=100):
 def Get_json_data_sub(URL, header):
     response = requests.get(URL, headers=header, timeout=5)  # 使用request获取网页
     if response.status_code == 200:
-        html = response.content.decode('utf-8', 'ignore')  # 将网页源码转换格式为html
+        html = response.content.decode("utf-8", "ignore")  # 将网页源码转换格式为html
         data_json = json.loads(html)
         return data_json
     else:
@@ -53,11 +53,11 @@ def Get_json_data_sub(URL, header):
 @retry(stop_max_attempt_number=10)
 def Get_soup_data(URl, header):
     response = requests.get(URl, headers=header, timeout=60)  # 使用request获取网页
-    html = response.content.decode('utf-8', 'ignore')  # 将网页源码转换格式为html
-    soup = BeautifulSoup(html, 'lxml')
+    html = response.content.decode("utf-8", "ignore")  # 将网页源码转换格式为html
+    soup = BeautifulSoup(html, "lxml")
     return soup
 
 
 def remove_upPrintable_chars(s):
     """移除所有不可见字符"""
-    return ''.join(x for x in s if x.isprintable())
+    return "".join(x for x in s if x.isprintable())

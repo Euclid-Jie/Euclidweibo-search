@@ -10,7 +10,16 @@ from Euclidweibo import *
 
 
 class WeiboClassV3(WeiboClassV2):
-    def __init__(self, keyWord=None, method=None, baseUrl=None, Mongo=True, proxies=False, max_work_count=20, LongText=False):
+    def __init__(
+        self,
+        keyWord=None,
+        method=None,
+        baseUrl=None,
+        Mongo=True,
+        proxies=False,
+        max_work_count=20,
+        LongText=False,
+    ):
         super().__init__(keyWord, method, baseUrl, Mongo, proxies)
         self.LongText = LongText
         self.max_work_count = max_work_count
@@ -25,9 +34,9 @@ class WeiboClassV3(WeiboClassV2):
         if ColName is None:
             ColName = self.keyWord
         if self.Mongo:
-            _COL = MongoClient('Weibo', ColName)
+            _COL = MongoClient("Weibo", ColName)
         else:
-            _COL = CsvClient('Weibo', ColName)
+            _COL = CsvClient("Weibo", ColName)
 
         print(">>> get blog info begin ...")
         NewEndTime = endTime
@@ -41,9 +50,11 @@ class WeiboClassV3(WeiboClassV2):
             print("\n\t >>> get blog data begin ...")
             # multitask get data
             allData = []
-            results = self.run_thread_pool_sub(Get_single_weibo_data,
-                                               [(mblogid.split("/")[-1], self.proxies) for mblogid in self.UrlList],
-                                               max_work_count=self.max_work_count)
+            results = self.run_thread_pool_sub(
+                Get_single_weibo_data,
+                [(mblogid.split("/")[-1], self.proxies) for mblogid in self.UrlList],
+                max_work_count=self.max_work_count,
+            )
             for future in as_completed(results):
                 data_json = future.result()
                 allData.append(data_json)
@@ -56,9 +67,11 @@ class WeiboClassV3(WeiboClassV2):
             if self.LongText:
                 print("\t >>> get LongText begin ...")
                 allData_long = []
-                results = self.run_thread_pool_sub(Get_longTextContent,
-                                                   [(data, self.proxies) for data in allData],
-                                                   max_work_count=self.max_work_count)
+                results = self.run_thread_pool_sub(
+                    Get_longTextContent,
+                    [(data, self.proxies) for data in allData],
+                    max_work_count=self.max_work_count,
+                )
                 for future in as_completed(results):
                     data_json = future.result()
                     allData_long.append(data_json)
@@ -70,11 +83,13 @@ class WeiboClassV3(WeiboClassV2):
             print("\t >>> write blog data begin ...")
             for data_json in allData:
                 if not self.LongText:
-                    data_json['longTextContent'] = ''
+                    data_json["longTextContent"] = ""
                 try:
                     selectedData = self.select_field(data_json)
                     _COL.insert_one(selectedData)
-                    tmpTime = pd.to_datetime(selectedData['time']).strftime("%Y-%m-%d-%H")
+                    tmpTime = pd.to_datetime(selectedData["time"]).strftime(
+                        "%Y-%m-%d-%H"
+                    )
                 except json.decoder.JSONDecodeError:
                     pass
                 except KeyError:
@@ -90,5 +105,7 @@ class WeiboClassV3(WeiboClassV2):
         print("\n>>> get blog info done")
 
 
-if __name__ == '__main__':
-    WeiboClassV3('央视频', Mongo=False, proxies=False).main('2023-02-11-00', '2023-03-27-21')
+if __name__ == "__main__":
+    WeiboClassV3("央视频", Mongo=False, proxies=False).main(
+        "2023-02-11-00", "2023-03-27-21"
+    )

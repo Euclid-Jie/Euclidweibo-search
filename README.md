@@ -19,7 +19,7 @@
 
 ### 2、设置Cookie
 
-将Cookie写入Cookie.txt中，详见[注意事项](##注意事项)，80%的报错/运行异常由Cookie设置不正确引起，特录制获取Cookie的[视频](https://www.bilibili.com/video/BV1Sh4y1J7Yz)，欢迎观看，获取正确的Cookie
+将`Cookie`写入`Cookie.txt`中，详见[注意事项](##注意事项)，80%的报错/运行异常由Cookie设置不正确引起，特录制获取Cookie的[视频](https://www.bilibili.com/video/BV1Sh4y1J7Yz)，欢迎观看，获取正确的Cookie
 
 ### 3、修改参数并运行`WeiboClassRun`
 
@@ -59,6 +59,11 @@ search_options = WeiboSearchOptions(
 ```
 
 ## 更新日志
+
+*20240312* 重构代码，解决相对应用问题
+
+- New Feature: 可使用`selenium`自动更新`cookie`，详见`Euclidweibo\weibo_cookie.py`，当然保留了手动更新方式；
+- Enhance: 自动获取`user`的总微博数，自动确定翻页次数
 
 *20231215* 简化代码结构，废弃冗余代码
 
