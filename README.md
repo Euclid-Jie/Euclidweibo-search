@@ -1,5 +1,7 @@
 ![Euclidweibo-search](https://socialify.git.ci/Euclid-Jie/Euclidweibo-search/image?language=1&name=1&owner=1&stargazers=1&theme=Light)
 # 微博爬虫-指定关键词
+[![wakatime](https://wakatime.com/badge/user/b638b33f-0c9e-4408-b427-258fe0b24ad0/project/018cf0d2-72e3-40dc-a5da-6d05ba35512c.svg)](https://wakatime.com/badge/user/b638b33f-0c9e-4408-b427-258fe0b24ad0/project/018cf0d2-72e3-40dc-a5da-6d05ba35512c)
+
 爬取指定时间区间内，包含指定关键词、话题的原创微博，此代码长期维护，如有疑问欢迎`Issues`
 ## 快速开始
 
